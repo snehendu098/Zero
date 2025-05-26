@@ -57,4 +57,5 @@ worker-configuration.d.ts
 
 # devcontainer
 .pnpm-store
-tsx-0/
+/tsx-0
+/update-check
