@@ -1223,18 +1223,6 @@ const MailDisplay = ({ emailData, index, totalEmails, demo }: Props) => {
                     f
                   </kbd>
                 </button>
-                {/* <button onClick={printMail} className="inline-flex h-7 items-center justify-center gap-1 overflow-hidden rounded-md border bg-white px-1.5 dark:border-none dark:bg-[#313131]"
-                >
-                  Print
-                  <kbd
-                    className={cn(
-                      'border-muted-foreground/10 bg-accent h-6 rounded-[6px] border px-1.5 font-mono text-xs leading-6',
-                      '-me-1 ms-auto hidden max-h-full items-center md:inline-flex',
-                    )}
-                  >
-                    <Download className="h-3.5 w-3.5" />
-                  </kbd>
-                </button> */}
               </div>
             </div>
           </div>
