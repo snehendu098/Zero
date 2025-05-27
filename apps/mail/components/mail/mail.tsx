@@ -784,7 +784,7 @@ export const Categories = () => {
       searchValue: 'is:important NOT is:sent NOT is:draft',
       icon: (
         <Lightning
-          className={cn('fill-[#6D6D6D] dark:fill-white', category === 'Important' && 'fill-white')}
+          className={cn('fill-primary-foreground', category === 'Important' && 'fill-primary-foreground')}
         />
       ),
     },
@@ -919,7 +919,7 @@ function CategorySelect({ isMultiSelectMode }: { isMultiSelectMode: boolean }) {
             <div className="relative overflow-visible">{cat.icon}</div>
             {isSelected && (
               <div className="flex items-center justify-center gap-2.5 px-0.5">
-                <div className="animate-in fade-in-0 slide-in-from-right-4 justify-start text-sm leading-none text-white duration-300">
+                <div className="animate-in fade-in-0 slide-in-from-right-4 justify-start text-sm leading-none text-primary-foreground duration-300">
                   {cat.name}
                 </div>
               </div>

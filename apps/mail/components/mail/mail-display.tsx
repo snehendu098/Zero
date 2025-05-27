@@ -170,7 +170,7 @@ const MailDisplayLabels = ({ labels }: { labels: string[] }) => {
 
         switch (normalizedLabel) {
           case 'important':
-            icon = <Lightning className="h-3.5 w-3.5 fill-white" />;
+            icon = <Lightning className="h-3.5 w-3.5 fill-primary" />;
             bgColor = 'bg-primary';
             break;
           case 'promotions':
