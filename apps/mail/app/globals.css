@@ -126,7 +126,7 @@
   @apply bg-background outline-none selection:bg-zinc-900 dark:bg-zinc-800 !important;
 }
 
-.ͼo.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground,
+.ͼo.cm-focused>.cm-scroller>.cm-selectionLayer .cm-selectionBackground,
 .ͼo.cm-selectionBackground,
 .ͼo.cm-content::selection {
   @apply bg-zinc-200 dark:bg-zinc-900 !important;
@@ -184,9 +184,11 @@
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -198,13 +200,11 @@
 }
 
 .compose-gradient-animated {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 213, 208, 1),
-    rgba(219, 255, 228, 1),
-    rgba(226, 214, 255, 1),
-    rgba(255, 213, 208, 1)
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 213, 208, 1),
+      rgba(219, 255, 228, 1),
+      rgba(226, 214, 255, 1),
+      rgba(255, 213, 208, 1));
   background-size: 300% 100%;
   animation: gradient-animation 8s ease infinite;
   box-shadow:
@@ -217,21 +217,21 @@
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
 }
 
 .compose-gradient-text {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 213, 208, 1) 0%,
-    rgba(219, 255, 228, 1) 50%,
-    rgba(226, 214, 255, 1) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 213, 208, 1) 0%,
+      rgba(219, 255, 228, 1) 50%,
+      rgba(226, 214, 255, 1) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -239,14 +239,12 @@
 }
 
 .compose-gradient-text-shiny {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 213, 208, 1) 0%,
-    rgba(255, 255, 255, 1) 25%,
-    rgba(219, 255, 228, 1) 50%,
-    rgba(255, 255, 255, 1) 75%,
-    rgba(226, 214, 255, 1) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 213, 208, 1) 0%,
+      rgba(255, 255, 255, 1) 25%,
+      rgba(219, 255, 228, 1) 50%,
+      rgba(255, 255, 255, 1) 75%,
+      rgba(226, 214, 255, 1) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -261,12 +259,10 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.4) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 100%);
   transform: translateX(-100%);
   mix-blend-mode: overlay;
   animation: shine-slow 3s ease-in-out infinite;
@@ -282,6 +278,7 @@
 .ProseMirror:focus {
   outline: none;
 }
+
 /* set */
 .ProseMirror {
   min-height: 200px;
@@ -294,6 +291,7 @@
   from {
     background-position: 0% 0;
   }
+
   to {
     background-position: -200% 0;
   }
@@ -303,16 +301,19 @@
   from {
     background-position: 0% 0;
   }
+
   to {
     background-position: -200% 0;
   }
 }
 
 @keyframes blink {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0;
   }
@@ -341,8 +342,10 @@
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
 /* Add scrollbar styling */

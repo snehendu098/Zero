@@ -17,19 +17,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        darkBackground: '#141414',
-        lightBackground: '#FFFFFF',
+        darkBackground: 'hsl(var(--sidebar))',
+        lightBackground: 'hsl(var(--sidebar))',
         offsetDark: '#0A0A0A',
         offsetLight: '#F5F5F5',
-        panelDark: '#1A1A1A',
-        panelLight: '#FFFFFF',
+        panelDark: 'hsl(var(--background))',
+        panelLight: 'hsl(var(--background))',
         iconDark: '#898989',
         iconLight: '#6D6D6D',
         logout: '#D93036',
         mainBlue: '#437DFB',
         subtleWhite: '#EAEAEA',
         subtleBlack: '#1F1F1F',
-        background: 'hsl(var(--background))',
+        background: 'hsl(var(--sidebar))',
         foreground: 'hsl(var(--foreground))',
         skyBlue: '#0066FF',
         shinyGray: '#A1A1A1',
@@ -72,7 +72,7 @@ export default {
           '5': 'hsl(var(--chart-5))',
         },
         sidebar: {
-          DEFAULT: 'hsl(var(--sidebar-background))',
+          DEFAULT: 'hsl(var(--sidebar))',
           foreground: 'hsl(var(--sidebar-foreground))',
           primary: 'hsl(var(--sidebar-primary))',
           'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',

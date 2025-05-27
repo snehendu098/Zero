@@ -27,6 +27,9 @@ import { useTheme } from 'next-themes';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import * as z from 'zod';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { ThemeSwitcher } from '@/components/theme/theme-switcher';
+import ThemesPage from '@/components/theme/theme-view';
 
 const formSchema = z.object({
   colorTheme: z.enum(['dark', 'light', 'system', '']),
@@ -97,13 +100,13 @@ export default function AppearancePage() {
       <SettingsCard
         title={t('pages.settings.appearance.title')}
         description={t('pages.settings.appearance.description')}
-        footer={
-          <Button type="submit" form="appearance-form" disabled={isSaving}>
-            {isSaving ? t('common.actions.saving') : t('common.actions.saveChanges')}
-          </Button>
-        }
+      // footer={
+      //   <Button type="submit" form="appearance-form" disabled={isSaving}>
+      //     {isSaving ? t('common.actions.saving') : t('common.actions.saveChanges')}
+      //   </Button>
+      // }
       >
-        <Form {...form}>
+        {/* <Form {...form}>
           <form id="appearance-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="space-y-4">
               <div className="max-w-sm space-y-2">
@@ -161,7 +164,23 @@ export default function AppearancePage() {
               </div>
             </div>
           </form>
-        </Form>
+        </Form> */}
+        {/* <ThemeSwitcher /> */}
+
+        <ThemesPage />
+        {/* <div className='w-full grid grid-cols-4 h-full gap-6' >
+
+          <Card className='bg-darkBackground' >
+            <CardHeader className='text-lg font-semibold'>Default Light</CardHeader>
+            <CardContent>
+              <div>
+                Hello World
+              </div>
+            </CardContent>
+          </Card>
+
+
+        </div> */}
       </SettingsCard>
     </div>
   );

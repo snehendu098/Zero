@@ -486,7 +486,7 @@ export function MailLayout() {
           {isDesktop && (
             <ResizablePanel
               className={cn(
-                'bg-panelLight dark:bg-panelDark mb-1 mr-0.5 w-fit rounded-2xl border border-[#E7E7E7] shadow-sm dark:border-[#252525]',
+                'bg-[#ffffff] dark:bg-[#1a1a1a] mb-1 mr-0.5 w-fit rounded-2xl border border-[#E7E7E7] shadow-sm dark:border-[#252525]',
                 // Only show on md screens and larger when there is a threadId
                 !threadId && 'hidden lg:block',
               )}
@@ -501,7 +501,7 @@ export function MailLayout() {
 
           {/* Mobile Thread View */}
           {isMobile && threadId && (
-            <div className="bg-panelLight dark:bg-panelDark fixed inset-0 z-50">
+            <div className="bg-[#ffffff] dark:bg-[#1a1a1a] fixed inset-0 z-50">
               <div className="flex h-full flex-col">
                 <div className="h-full overflow-y-auto outline-none">
                   <ThreadDisplay />

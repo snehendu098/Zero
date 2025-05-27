@@ -293,8 +293,8 @@ function NavItem(item: NavItemProps & { href: string }) {
     <SidebarMenuButton
       tooltip={state === 'collapsed' ? t(item.title as MessageKey) : undefined}
       className={cn(
-        'hover:bg-subtleWhite flex items-center dark:hover:bg-[#202020]',
-        item.isActive && 'bg-subtleWhite text-accent-foreground dark:bg-[#202020]',
+        'hover:bg-accent/70 flex items-center',
+        item.isActive && 'bg-accent text-accent-foreground',
       )}
       onClick={() => setOpenMobile(false)}
     >

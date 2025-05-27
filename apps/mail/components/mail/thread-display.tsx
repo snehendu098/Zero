@@ -367,7 +367,7 @@ export function ThreadDisplay() {
     >
       <div
         className={cn(
-          'bg-panelLight dark:bg-panelDark relative flex flex-col overflow-hidden rounded-xl transition-all duration-300',
+          'bg-[#ffffff] dark:bg-[#1a1a1a] relative flex flex-col overflow-hidden rounded-xl transition-all duration-300',
           isMobile ? 'h-full' : 'h-full',
           !isMobile && !isFullscreen && 'rounded-r-lg',
           isFullscreen ? 'fixed inset-0 z-50' : '',
@@ -603,7 +603,7 @@ export function ThreadDisplay() {
                           <span>{t('common.threadDisplay.moveToSpam')}</span>
                         </DropdownMenuItem>
                         {emailData.latest?.listUnsubscribe ||
-                        emailData.latest?.listUnsubscribePost ? (
+                          emailData.latest?.listUnsubscribePost ? (
                           <DropdownMenuItem onClick={handleUnsubscribeProcess}>
                             <Folders className="fill-iconLight dark:fill-iconDark mr-2" />
                             <span>Unsubscribe</span>
