@@ -6,8 +6,10 @@ import CustomToaster from '@/components/ui/toast';
 import { Provider as JotaiProvider } from 'jotai';
 import type { PropsWithChildren } from 'react';
 import { ThemeProvider } from 'next-themes';
+import { ThemeContextProvider } from '@/components/context/theme-context';
 
 export function ClientProviders({ children }: PropsWithChildren) {
+
   const { data } = useSettings();
 
   const theme = data?.settings.colorTheme || 'system';
@@ -21,12 +23,14 @@ export function ClientProviders({ children }: PropsWithChildren) {
           disableTransitionOnChange
           defaultTheme={theme}
         >
-          <SidebarProvider>
-            <PostHogProvider>
-              {children}
-              <CustomToaster />
-            </PostHogProvider>
-          </SidebarProvider>
+          <ThemeContextProvider>
+            <SidebarProvider>
+              <PostHogProvider>
+                {children}
+                <CustomToaster />
+              </PostHogProvider>
+            </SidebarProvider>
+          </ThemeContextProvider>
         </ThemeProvider>
       </JotaiProvider>
     </NuqsAdapter>

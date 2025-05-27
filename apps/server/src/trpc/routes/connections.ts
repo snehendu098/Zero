@@ -1,6 +1,6 @@
-import { createRateLimiterMiddleware, privateProcedure, router } from '../trpc';
+import { createRateLimiterMiddleware, privateProcedure, publicProcedure, router } from '../trpc';
 import { getActiveConnection } from '../../lib/server-utils';
-import { connection, user as user_ } from '@zero/db/schema';
+import { connection, user as user_ } from '../../db/schema';
 import { Ratelimit } from '@upstash/ratelimit';
 import { TRPCError } from '@trpc/server';
 import { and, eq } from 'drizzle-orm';
@@ -77,7 +77,8 @@ export const connectionsRouter = router({
       if (connectionId === activeConnection.id)
         await db.update(user_).set({ defaultConnectionId: null });
     }),
-  getDefault: privateProcedure.query(async () => {
+  getDefault: publicProcedure.query(async ({ ctx }) => {
+    if (!ctx.session) return null;
     const connection = await getActiveConnection();
     return connection;
   }),

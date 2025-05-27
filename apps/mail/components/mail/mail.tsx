@@ -46,6 +46,7 @@ import AISidebar from '@/components/ui/ai-sidebar';
 import { cleanSearchValue, cn } from '@/lib/utils';
 import { useThreads } from '@/hooks/use-threads';
 import AIToggleButton from '../ai-toggle-button';
+import { useBilling } from '@/hooks/use-billing';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
@@ -105,6 +106,7 @@ const AutoLabelingSettings = () => {
   const { mutateAsync: updateLabels, isPending } = useMutation(
     trpc.brain.updateLabels.mutationOptions(),
   );
+  const [, setPricingDialog] = useQueryState('pricingDialog');
   const [labels, setLabels] = useState<ITag[]>([]);
   const [newLabel, setNewLabel] = useState({ name: '', usecase: '' });
   const { mutateAsync: EnableBrain, isPending: isEnablingBrain } = useMutation(
@@ -114,6 +116,7 @@ const AutoLabelingSettings = () => {
     trpc.brain.disableBrain.mutationOptions(),
   );
   const { data: brainState, refetch: refetchBrainState } = useBrainState();
+  const { isLoading, isPro } = useBilling();
 
   useEffect(() => {
     if (storedLabels) {
@@ -207,7 +210,16 @@ const AutoLabelingSettings = () => {
   }, [brainState?.enabled]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(state) => {
+        if (!isPro) {
+          setPricingDialog('true');
+        } else {
+          setOpen(state);
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <div className="flex items-center gap-2">
           {/* <div
@@ -218,7 +230,7 @@ const AutoLabelingSettings = () => {
           /> */}
 
           <Switch
-            disabled={isEnablingBrain || isDisablingBrain}
+            disabled={isEnablingBrain || isDisablingBrain || isLoading}
             checked={brainState?.enabled ?? false}
           />
           <span className="text-muted-foreground cursor-pointer text-xs">Auto label</span>
@@ -404,9 +416,9 @@ export function MailLayout() {
           className="rounded-inherit overflow-hidden"
         >
           <ResizablePanel
-            defaultSize={40}
-            minSize={40}
-            maxSize={50}
+            defaultSize={35}
+            minSize={35}
+            maxSize={40}
             className={cn(
               `bg-panelLight dark:bg-panelDark mb-1 w-fit shadow-sm md:rounded-2xl md:border md:border-[#E7E7E7] lg:flex lg:shadow-sm dark:border-[#252525]`,
               isDesktop && threadId && 'hidden lg:block',
@@ -846,7 +858,7 @@ function getCategoryColor(categoryId: string): string {
     case 'all mail':
       return 'bg-[#006FFE]';
     case 'important':
-      return 'bg-[#F59E0D]';
+      return 'bg-primary';
     case 'promotions':
       return 'bg-[#F43F5E]';
     case 'personal':

@@ -1,78 +1,21 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { ArrowLeft, Check, Moon, Sun } from "lucide-react"
+import { useState, useEffect, useContext } from "react"
+import { Check, Moon, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { EnhancedThemeSwitcher } from "@/components/theme/enhanced-theme-switcher"
 import { themes } from "@/lib/themes"
+import { useTheme } from "next-themes"
+import { useAtom } from "jotai"
+import { CurrentThemeContext } from "../context/theme-context"
+import type { ThemeName, ThemeOption } from "@/types"
 
-type ThemeName = "claude" | "t3" | "bubblegum"
-type ThemeVariant = "light" | "dark"
-type ThemeOption = `${ThemeName}-${ThemeVariant}`
+
 
 export default function ThemesPage() {
-    const [mounted, setMounted] = useState(false)
-    const [activeTheme, setActiveTheme] = useState<ThemeOption>("claude-light")
-    const [isTransitioning, setIsTransitioning] = useState(false)
 
-    // Parse theme option to get name and variant
-    const parseThemeOption = (option: ThemeOption): { name: ThemeName; variant: ThemeVariant } => {
-        const [name, variant] = option.split("-") as [ThemeName, ThemeVariant]
-        return { name, variant }
-    }
-
-    // Apply the selected theme with smooth transitions
-    const applyTheme = (themeOption: ThemeOption) => {
-        if (isTransitioning) return
-
-        setIsTransitioning(true)
-        const { name, variant } = parseThemeOption(themeOption)
-
-        // Add transition class to body
-        document.documentElement.classList.add("theme-transition")
-
-        // Small delay to ensure transition class is applied
-        requestAnimationFrame(() => {
-            // Remove any existing theme styles
-            const existingStyle = document.getElementById("dynamic-theme-style")
-            if (existingStyle) {
-                existingStyle.remove()
-            }
-
-            // Create and inject new theme styles
-            const style = document.createElement("style")
-            style.id = "dynamic-theme-style"
-            style.innerHTML = themes[name]
-            document.head.appendChild(style)
-
-            // Set dark mode based on variant
-            if (variant === "dark") {
-                document.documentElement.classList.add("dark")
-            } else {
-                document.documentElement.classList.remove("dark")
-            }
-
-            setActiveTheme(themeOption)
-            localStorage.setItem("selected-theme", themeOption)
-
-            // Remove transition class after animation completes
-            setTimeout(() => {
-                document.documentElement.classList.remove("theme-transition")
-                setIsTransitioning(false)
-            }, 300)
-        })
-    }
-
-    // Initialize theme from localStorage
-    useEffect(() => {
-        setMounted(true)
-        const savedTheme = localStorage.getItem("selected-theme") as ThemeOption | null
-        if (savedTheme) {
-            setActiveTheme(savedTheme)
-        }
-    }, [])
+    const { mounted, activeTheme, applyTheme } = useContext(CurrentThemeContext)
 
     // Prevent hydration mismatch
     if (!mounted) return null

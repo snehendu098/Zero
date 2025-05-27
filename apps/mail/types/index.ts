@@ -135,3 +135,7 @@ export interface Note {
   updatedAt: Date;
 }
 
+
+export type ThemeName = "claude" | "t3" | "bubblegum"
+export type ThemeVariant = "light" | "dark"
+export type ThemeOption = `${ThemeName}-${ThemeVariant}`

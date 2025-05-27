@@ -9,14 +9,23 @@ import {
   PDF,
   Reply,
   ReplyAll,
+  ThreeDots,
   Tag,
   User,
   ChevronDown,
+  Check,
+  Printer,
 } from '../icons/icons';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { Briefcase, Star, StickyNote, Users, Lock, Download, MoreVertical } from 'lucide-react';
 import { memo, useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
-import { Briefcase, Star, StickyNote, Users, Lock, Download, Printer } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { useActiveConnection } from '@/hooks/use-connections';
 import { handleUnsubscribe } from '@/lib/email-utils.client';
@@ -162,7 +171,7 @@ const MailDisplayLabels = ({ labels }: { labels: string[] }) => {
         switch (normalizedLabel) {
           case 'important':
             icon = <Lightning className="h-3.5 w-3.5 fill-white" />;
-            bgColor = 'bg-[#F59E0D]';
+            bgColor = 'bg-primary';
             break;
           case 'promotions':
             icon = <Tag className="h-3.5 w-3.5 fill-white" />;
@@ -257,24 +266,55 @@ const AiSummary = () => {
         )}
       </div>
       {showSummary && (
-        <Markdown markdownContainerStyles={{ fontSize: 12 }}>{summary?.data.short || ''}</Markdown>
+        <Markdown markdownContainerStyles={{ fontSize: 15 }}>{summary?.data.short || ''}</Markdown>
       )}
     </div>
   );
 };
 
+type ActionButtonProps = {
+  onClick: (e: React.MouseEvent) => void;
+  icon: React.ReactNode;
+  text: string;
+  shortcut?: string;
+};
+
+const ActionButton = ({ onClick, icon, text, shortcut }: ActionButtonProps) => {
+  return (
+    <button
+      onClick={onClick}
+      className="inline-flex h-7 items-center justify-center gap-1 overflow-hidden rounded-md border bg-white px-1.5 dark:border-none dark:bg-[#313131]"
+    >
+      {icon}
+      <div className="flex items-center justify-center gap-2.5 pl-0.5 pr-1">
+        <div className="justify-start text-sm leading-none text-black dark:text-white">{text}</div>
+      </div>
+      {shortcut && (
+        <kbd
+          className={cn(
+            'border-muted-foreground/10 bg-accent h-6 rounded-[6px] border px-1.5 font-mono text-xs leading-6',
+            '-me-1 ms-auto hidden max-h-full items-center md:inline-flex',
+          )}
+        >
+          {shortcut}
+        </kbd>
+      )}
+    </button>
+  );
+};
+
 const MailDisplay = ({ emailData, index, totalEmails, demo }: Props) => {
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
-  const [unsubscribed, setUnsubscribed] = useState(false);
-  const [isUnsubscribing, setIsUnsubscribing] = useState(false);
+  //   const [unsubscribed, setUnsubscribed] = useState(false);
+  //   const [isUnsubscribing, setIsUnsubscribing] = useState(false);
   const [preventCollapse, setPreventCollapse] = useState(false);
   const { folder } = useParams<{ folder: string }>();
-  const [selectedAttachment, setSelectedAttachment] = useState<null | {
-    id: string;
-    name: string;
-    type: string;
-    url: string;
-  }>(null);
+  //   const [selectedAttachment, setSelectedAttachment] = useState<null | {
+  //     id: string;
+  //     name: string;
+  //     type: string;
+  //     url: string;
+  //   }>(null);
   const [openDetailsPopover, setOpenDetailsPopover] = useState<boolean>(false);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const collapseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -287,12 +327,14 @@ const MailDisplay = ({ emailData, index, totalEmails, demo }: Props) => {
   const { data: brainState } = useBrainState();
   const { data: activeConnection } = useActiveConnection();
 
+  const isLastEmail = totalEmails && index === totalEmails - 1;
+
   useEffect(() => {
     if (!demo) {
       if (activeReplyId === emailData.id) {
         setIsCollapsed(false);
       } else {
-        setIsCollapsed(activeReplyId ? true : totalEmails ? index !== totalEmails - 1 : false);
+        setIsCollapsed(activeReplyId ? true : isLastEmail ? false : true);
       }
       // Set all emails to collapsed by default except the last one
       if (totalEmails && index === totalEmails - 1) {
@@ -304,34 +346,34 @@ const MailDisplay = ({ emailData, index, totalEmails, demo }: Props) => {
         }
       }
     }
-  }, [index, activeReplyId, emailData.id, totalEmails, demo]);
+  }, [demo, emailData.id, isLastEmail]);
 
-  const listUnsubscribeAction = useMemo(
-    () =>
-      emailData.listUnsubscribe
-        ? getListUnsubscribeAction({
-          listUnsubscribe: emailData.listUnsubscribe,
-          listUnsubscribePost: emailData.listUnsubscribePost,
-        })
-        : undefined,
-    [emailData.listUnsubscribe, emailData.listUnsubscribePost],
-  );
+  //   const listUnsubscribeAction = useMemo(
+  //     () =>
+  //       emailData.listUnsubscribe
+  //         ? getListUnsubscribeAction({
+  //             listUnsubscribe: emailData.listUnsubscribe,
+  //             listUnsubscribePost: emailData.listUnsubscribePost,
+  //           })
+  //         : undefined,
+  //     [emailData.listUnsubscribe, emailData.listUnsubscribePost],
+  //   );
 
-  const _handleUnsubscribe = async () => {
-    setIsUnsubscribing(true);
-    try {
-      await handleUnsubscribe({
-        emailData,
-      });
-      setIsUnsubscribing(false);
-      setUnsubscribed(true);
-    } catch (e) {
-      setIsUnsubscribing(false);
-      setUnsubscribed(false);
-    }
-  };
+  //   const _handleUnsubscribe = async () => {
+  //     setIsUnsubscribing(true);
+  //     try {
+  //       await handleUnsubscribe({
+  //         emailData,
+  //       });
+  //       setIsUnsubscribing(false);
+  //       setUnsubscribed(true);
+  //     } catch (e) {
+  //       setIsUnsubscribing(false);
+  //       setUnsubscribed(false);
+  //     }
+  //   };
 
-  const [mode, setMode] = useQueryState('mode');
+  const [, setMode] = useQueryState('mode');
 
   // Clear any pending timeouts when component unmounts
   useEffect(() => {
@@ -592,13 +634,16 @@ const MailDisplay = ({ emailData, index, totalEmails, demo }: Props) => {
             <div class="email-header">
               <h1 class="email-title">${emailData.subject || 'No Subject'}</h1>
               
-              ${emailData?.tags && emailData.tags.length > 0 ? `
+              ${emailData?.tags && emailData.tags.length > 0
+          ? `
                 <div class="labels-section">
-                  ${emailData.tags.map(tag =>
-        `<span class="label-badge">${tag.name}</span>`
-      ).join('')}
+                  ${emailData.tags
+            .map((tag) => `<span class="label-badge">${tag.name}</span>`)
+            .join('')}
                 </div>
-              ` : ''}
+              `
+          : ''
+        }
               
               <div class="email-meta">
                 <div class="meta-row">
@@ -609,38 +654,56 @@ const MailDisplay = ({ emailData, index, totalEmails, demo }: Props) => {
                   </span>
                 </div>
                 
-                ${emailData.to && emailData.to.length > 0 ? `
+                ${emailData.to && emailData.to.length > 0
+          ? `
                   <div class="meta-row">
                     <span class="meta-label">To:</span>
                     <span class="meta-value">
-                      ${emailData.to.map(recipient =>
-        `${cleanNameDisplay(recipient.name)} &lt;${recipient.email}&gt;`
-      ).join(', ')}
+                      ${emailData.to
+            .map(
+              (recipient) =>
+                `${cleanNameDisplay(recipient.name)} &lt;${recipient.email}&gt;`,
+            )
+            .join(', ')}
                     </span>
                   </div>
-                ` : ''}
+                `
+          : ''
+        }
                 
-                ${emailData.cc && emailData.cc.length > 0 ? `
+                ${emailData.cc && emailData.cc.length > 0
+          ? `
                   <div class="meta-row">
                     <span class="meta-label">CC:</span>
                     <span class="meta-value">
-                      ${emailData.cc.map(recipient =>
-        `${cleanNameDisplay(recipient.name)} &lt;${recipient.email}&gt;`
-      ).join(', ')}
+                      ${emailData.cc
+            .map(
+              (recipient) =>
+                `${cleanNameDisplay(recipient.name)} &lt;${recipient.email}&gt;`,
+            )
+            .join(', ')}
                     </span>
                   </div>
-                ` : ''}
+                `
+          : ''
+        }
                 
-                ${emailData.bcc && emailData.bcc.length > 0 ? `
+                ${emailData.bcc && emailData.bcc.length > 0
+          ? `
                   <div class="meta-row">
                     <span class="meta-label">BCC:</span>
                     <span class="meta-value">
-                      ${emailData.bcc.map(recipient =>
-        `${cleanNameDisplay(recipient.name)} &lt;${recipient.email}&gt;`
-      ).join(', ')}
+                      ${emailData.bcc
+            .map(
+              (recipient) =>
+                `${cleanNameDisplay(recipient.name)} &lt;${recipient.email}&gt;`,
+            )
+            .join(', ')}
                     </span>
                   </div>
-                ` : ''}
+                `
+          : ''
+        }
                 
                 <div class="meta-row">
                   <span class="meta-label">Date:</span>
@@ -659,52 +722,64 @@ const MailDisplay = ({ emailData, index, totalEmails, demo }: Props) => {
             </div>
             
             <!-- Attachments -->
-            ${emailData.attachments && emailData.attachments.length > 0 ? `
+            ${emailData.attachments && emailData.attachments.length > 0
+          ? `
               <div class="attachments-section">
                 <h2 class="attachments-title">Attachments (${emailData.attachments.length})</h2>
-                ${emailData.attachments.map((attachment, index) => `
+                ${emailData.attachments
+            .map(
+              (attachment, index) => `
                   <div class="attachment-item">
                     <span class="attachment-name">${attachment.filename}</span>
                     ${formatFileSize(attachment.size) ? ` - <span class="attachment-size">${formatFileSize(attachment.size)}</span>` : ''}
                   </div>
-                `).join('')}
+                `,
+            )
+            .join('')}
               </div>
-            ` : ''}
+            `
+          : ''
+        }
           </div>
         </body>
       </html>
     `;
 
-      // Write content to the iframe
-      const iframeDoc = printFrame.contentDocument || printFrame.contentWindow.document;
-      iframeDoc.open();
-      iframeDoc.write(printContent);
-      iframeDoc.close();
+      if (printFrame.contentWindow) {
+        // Write content to the iframe
+        const iframeDoc = printFrame.contentDocument || printFrame.contentWindow.document;
+        iframeDoc.open();
+        iframeDoc.write(printContent);
+        iframeDoc.close();
 
-      // Wait for content to load, then print
-      printFrame.onload = function () {
-        setTimeout(() => {
-          try {
-            // Focus the iframe and print
-            printFrame.contentWindow.focus();
-            printFrame.contentWindow.print();
+        // Wait for content to load, then print
+        printFrame.onload = function () {
+          setTimeout(() => {
+            try {
+              if (!printFrame.contentWindow) {
+                console.error('Failed to get iframe window');
+                return;
+              }
+              // Focus the iframe and print
+              printFrame.contentWindow.focus();
+              printFrame.contentWindow.print();
 
-            // Clean up - remove the iframe after a delay
-            setTimeout(() => {
+              // Clean up - remove the iframe after a delay
+              setTimeout(() => {
+                if (printFrame && printFrame.parentNode) {
+                  document.body.removeChild(printFrame);
+                }
+              }, 1000);
+            } catch (error) {
+              console.error('Error during print:', error);
+              // Clean up on error
               if (printFrame && printFrame.parentNode) {
                 document.body.removeChild(printFrame);
               }
-            }, 1000);
-          } catch (error) {
-            console.error('Error during print:', error);
-            // Clean up on error
-            if (printFrame && printFrame.parentNode) {
-              document.body.removeChild(printFrame);
             }
-          }
-        }, 500);
-      };
-
+          }, 500);
+        };
+      }
     } catch (error) {
       console.error('Error printing email:', error);
       alert('Failed to print email. Please try again.');
@@ -962,86 +1037,93 @@ const MailDisplay = ({ emailData, index, totalEmails, demo }: Props) => {
                         </Popover>
                       </div>
 
-                      <div className='flex items-center justify-center' >
-
-                        <time className="text-sm font-medium text-[#6D6D6D] dark:text-[#8C8C8C]">
+                      <div className="flex items-center justify-center">
+                        <time className="mr-2 text-sm font-medium text-[#6D6D6D] dark:text-[#8C8C8C]">
                           {formatDate(emailData?.receivedOn)}
                         </time>
 
-                        {/* print button */}
-                        <button onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          printMail()
-                        }} className='ml-4 z-50' >
-
-                          <kbd
-                            className={cn(
-                              'border-muted-foreground/10 bg-accent hover:bg-primary/25 h-6 rounded-[6px] border px-1.5 font-mono text-xs leading-6',
-                              '-me-1 ms-auto hidden max-h-full items-center md:inline-flex',
-                            )}
-                          >
-                            <Printer className="h-3.5 w-3.5" />
-                          </kbd>
-                        </button>
+                        {/* options menu */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                              }}
+                              className="inline-flex h-7 w-7 items-center justify-center gap-1 overflow-hidden rounded-md bg-white focus:outline-none focus:ring-0 dark:bg-[#313131]"
+                            >
+                              <ThreeDots className="fill-iconLight dark:fill-iconDark" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-white dark:bg-[#313131]">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                printMail();
+                              }}
+                            >
+                              <Printer className="fill-iconLight dark:fill-iconDark mr-2 h-4 w-4" />
+                              Print
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 pb-2">
-                      <p className="text-sm font-medium text-[#6D6D6D] dark:text-[#8C8C8C]">
-                        To:{' '}
-                        {(() => {
-                          // Combine to and cc recipients
-                          const allRecipients = [
-                            ...(emailData?.to || []),
-                            ...(emailData?.cc || []),
-                          ];
-
-                          // If you're the only recipient
-                          if (allRecipients.length === 1 && folder !== 'sent') {
-                            return <span key="you">You</span>;
-                          }
-
-                          // Show first 3 recipients + count of others
-                          const visibleRecipients = allRecipients.slice(0, 3);
-                          const remainingCount = allRecipients.length - 3;
-
-                          return (
-                            <>
-                              {visibleRecipients.map((recipient, index) => (
-                                <span key={recipient.email}>
-                                  {cleanNameDisplay(recipient.name) ||
-                                    cleanEmailDisplay(recipient.email)}
-                                  {index < visibleRecipients.length - 1 ? ', ' : ''}
-                                </span>
-                              ))}
-                              {remainingCount > 0 && (
-                                <span key="others">{`, +${remainingCount} others`}</span>
-                              )}
-                            </>
-                          );
-                        })()}
-                      </p>
-                      {(emailData?.bcc?.length || 0) > 0 && (
+                    <div className="flex justify-between">
+                      <div className="flex gap-1">
                         <p className="text-sm font-medium text-[#6D6D6D] dark:text-[#8C8C8C]">
-                          Bcc:{' '}
-                          {emailData?.bcc?.map((recipient, index) => (
-                            <span key={recipient.email}>
-                              {cleanNameDisplay(recipient.name) ||
-                                cleanEmailDisplay(recipient.email)}
-                              {index < (emailData?.bcc?.length || 0) - 1 ? ', ' : ''}
-                            </span>
-                          ))}
+                          To:{' '}
+                          {(() => {
+                            // Combine to and cc recipients
+                            const allRecipients = [
+                              ...(emailData?.to || []),
+                              ...(emailData?.cc || []),
+                            ];
+
+                            // If you're the only recipient
+                            if (allRecipients.length === 1 && folder !== 'sent') {
+                              return <span key="you">You</span>;
+                            }
+
+                            // Show first 3 recipients + count of others
+                            const visibleRecipients = allRecipients.slice(0, 3);
+                            const remainingCount = allRecipients.length - 3;
+
+                            return (
+                              <>
+                                {visibleRecipients.map((recipient, index) => (
+                                  <span key={recipient.email}>
+                                    {cleanNameDisplay(recipient.name) ||
+                                      cleanEmailDisplay(recipient.email)}
+                                    {index < visibleRecipients.length - 1 ? ', ' : ''}
+                                  </span>
+                                ))}
+                                {remainingCount > 0 && (
+                                  <span key="others">{`, +${remainingCount} others`}</span>
+                                )}
+                              </>
+                            );
+                          })()}
                         </p>
-                      )}
+                        {(emailData?.bcc?.length || 0) > 0 && (
+                          <p className="text-sm font-medium text-[#6D6D6D] dark:text-[#8C8C8C]">
+                            Bcc:{' '}
+                            {emailData?.bcc?.map((recipient, index) => (
+                              <span key={recipient.email}>
+                                {cleanNameDisplay(recipient.name) ||
+                                  cleanEmailDisplay(recipient.email)}
+                                {index < (emailData?.bcc?.length || 0) - 1 ? ', ' : ''}
+                              </span>
+                            ))}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  <span className="text-muted-foreground flex grow-0 items-center gap-2 text-sm">
-                    {/* <span className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
-                      {emailData?.sender?.email}
-                    </span> */}
-
-                    {/* {listUnsubscribeAction && (
+                  {/* Pending, needs a storage to make the unsubscribe status consitent */}
+                  {/* <span className="text-muted-foreground flex grow-0 items-center gap-2 text-sm">
+                    {listUnsubscribeAction && (
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button
@@ -1081,8 +1163,7 @@ const MailDisplay = ({ emailData, index, totalEmails, demo }: Props) => {
                         </DialogContent>
                       </Dialog>
                     )}
-                    {isMuted && <BellOff className="h-4 w-4" />} */}
-                  </span>
+                  </span> */}
                 </div>
               </div>
             </div>
@@ -1154,75 +1235,39 @@ const MailDisplay = ({ emailData, index, totalEmails, demo }: Props) => {
                 </div>
               ) : null}
               <div className="mb-2 mt-2 flex gap-2 px-4">
-                <button
+                <ActionButton
                   onClick={(e) => {
                     e.stopPropagation();
+                    setIsCollapsed(false);
                     setMode('reply');
                     setActiveReplyId(emailData.id);
                   }}
-                  className="inline-flex h-7 items-center justify-center gap-1 overflow-hidden rounded-md border bg-white px-1.5 dark:border-none dark:bg-[#313131]"
-                >
-                  <Reply className="fill-[#6D6D6D] dark:fill-[#9B9B9B]" />
-                  <div className="flex items-center justify-center gap-2.5 pl-0.5 pr-1">
-                    <div className="justify-start text-sm leading-none text-black dark:text-white">
-                      {t('common.mail.reply')}
-                    </div>
-                  </div>
-                  <kbd
-                    className={cn(
-                      'border-muted-foreground/10 bg-accent h-6 rounded-[6px] border px-1.5 font-mono text-xs leading-6',
-                      '-me-1 ms-auto hidden max-h-full items-center md:inline-flex',
-                    )}
-                  >
-                    r
-                  </kbd>
-                </button>
-                <button
+                  icon={<Reply className="fill-[#6D6D6D] dark:fill-[#9B9B9B]" />}
+                  text={t('common.mail.reply')}
+                  shortcut={isLastEmail ? 'r' : undefined}
+                />
+                <ActionButton
                   onClick={(e) => {
                     e.stopPropagation();
+                    setIsCollapsed(false);
                     setMode('replyAll');
                     setActiveReplyId(emailData.id);
                   }}
-                  className="inline-flex h-7 items-center justify-center gap-1 overflow-hidden rounded-md border bg-white px-1.5 dark:border-none dark:bg-[#313131]"
-                >
-                  <ReplyAll className="fill-[#6D6D6D] dark:fill-[#9B9B9B]" />
-                  <div className="flex items-center justify-center gap-2.5 pl-0.5 pr-1">
-                    <div className="justify-start text-sm leading-none text-black dark:text-white">
-                      {t('common.mail.replyAll')}
-                    </div>
-                  </div>
-                  <kbd
-                    className={cn(
-                      'border-muted-foreground/10 bg-accent h-6 rounded-[6px] border px-1.5 font-mono text-xs leading-6',
-                      '-me-1 ms-auto hidden max-h-full items-center md:inline-flex',
-                    )}
-                  >
-                    a
-                  </kbd>
-                </button>
-                <button
+                  icon={<ReplyAll className="fill-[#6D6D6D] dark:fill-[#9B9B9B]" />}
+                  text={t('common.mail.replyAll')}
+                  shortcut={isLastEmail ? 'a' : undefined}
+                />
+                <ActionButton
                   onClick={(e) => {
                     e.stopPropagation();
+                    setIsCollapsed(false);
                     setMode('forward');
                     setActiveReplyId(emailData.id);
                   }}
-                  className="inline-flex h-7 items-center justify-center gap-1 overflow-hidden rounded-md border bg-white px-1.5 dark:border-none dark:bg-[#313131]"
-                >
-                  <Forward className="fill-[#6D6D6D] dark:fill-[#9B9B9B]" />
-                  <div className="flex items-center justify-center gap-2.5 pl-0.5 pr-1">
-                    <div className="justify-start text-sm leading-none text-black dark:text-white">
-                      {t('common.mail.forward')}
-                    </div>
-                  </div>
-                  <kbd
-                    className={cn(
-                      'border-muted-foreground/10 bg-accent h-6 rounded-[6px] border px-1.5 font-mono text-xs leading-6',
-                      '-me-1 ms-auto hidden max-h-full items-center md:inline-flex',
-                    )}
-                  >
-                    f
-                  </kbd>
-                </button>
+                  icon={<Forward className="fill-[#6D6D6D] dark:fill-[#9B9B9B]" />}
+                  text={t('common.mail.forward')}
+                  shortcut={isLastEmail ? 'f' : undefined}
+                />
               </div>
             </div>
           </div>

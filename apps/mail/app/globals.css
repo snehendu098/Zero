@@ -95,6 +95,7 @@
 
   body {
     @apply bg-background text-foreground font-sans;
+    overscroll-behavior: none;
   }
 }
 
@@ -224,6 +225,16 @@
 
   100% {
     background-position: 0% 50%;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
   }
 }
 

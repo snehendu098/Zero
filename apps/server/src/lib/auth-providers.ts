@@ -36,7 +36,7 @@ export const authProviders = (env: Record<string, string>): ProviderConfig[] => 
       { name: 'GOOGLE_CLIENT_SECRET', source: 'Google Cloud Console' },
     ],
     config: {
-      // prompt: "consent", // uncomment if you have refreshed and rebuilt the database
+      prompt: env.FORCE_GOOGLE_AUTH ? 'consent' : undefined,
       accessType: 'offline',
       scope: [
         'https://www.googleapis.com/auth/gmail.modify',
