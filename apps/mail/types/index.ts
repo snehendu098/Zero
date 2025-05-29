@@ -145,11 +145,23 @@ export interface ThemeColors {
   secondary: string
   accent: string
   muted: string
+  background: string
+  foreground: string
+  card: string
+  cardForeground: string
+  border: string
+  ring: string
+  sidebar: string
+  sidebarForeground: string
+  sidebarAccent: string
+  sidebarAccentForeground: string
+  panel: string
+  radius: string
 }
 
 export interface ApiThemeResponse {
   name: string
-  desctiption: string // keeping the typo from your API
+  description: string // keeping the typo from your API
   css: string
   id: string
 }
@@ -162,4 +174,36 @@ export interface ThemeData {
   colors: ThemeColors
   css: string
   themeId: string // original theme ID from API
+  isCustom?: boolean
+}
+
+export interface ThemeColors {
+  primary: string
+  secondary: string
+  accent: string
+  muted: string
+  background: string
+  foreground: string
+  card: string
+  cardForeground: string
+  border: string
+  ring: string
+  sidebar: string
+  sidebarForeground: string
+  sidebarAccent: string
+  sidebarAccentForeground: string
+  panel: string
+  radius: string
+}
+
+export interface CustomTheme {
+  name: string
+  description: string
+  colors: {
+    light: ThemeColors
+    dark?: ThemeColors
+  }
+  id: string
+  createdAt?: string
+  hasDarkMode: boolean
 }

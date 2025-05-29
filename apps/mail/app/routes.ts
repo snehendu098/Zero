@@ -49,6 +49,7 @@ export default [
       prefix('/settings', [
         index('(routes)/settings/page.tsx'),
         route('/appearance', '(routes)/settings/appearance/page.tsx'),
+        route('/appearance/create', '(routes)/settings/appearance/create/page.tsx'),
         route('/connections', '(routes)/settings/connections/page.tsx'),
         route('/danger-zone', '(routes)/settings/danger-zone/page.tsx'),
         route('/general', '(routes)/settings/general/page.tsx'),

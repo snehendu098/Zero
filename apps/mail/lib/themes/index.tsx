@@ -3,7 +3,7 @@ import type { ApiThemeResponse } from "@/types"
 export const themesApiReponse: ApiThemeResponse[] = [
   {
     name: "Claude",
-    desctiption: "lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    description: "lorem ipsum dolor sit amet, consectetur adipiscing elit.",
     css: `
 :root {
   --radius: 0.5rem;
@@ -92,7 +92,7 @@ export const themesApiReponse: ApiThemeResponse[] = [
   },
   {
     name: "T3",
-    desctiption: "lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    description: "lorem ipsum dolor sit amet, consectetur adipiscing elit.",
     css: `
 :root {
   --radius: 0.5rem;
@@ -181,7 +181,7 @@ export const themesApiReponse: ApiThemeResponse[] = [
   },
   {
     name: "Bubblegum",
-    desctiption: "lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    description: "lorem ipsum dolor sit amet, consectetur adipiscing elit.",
     css: `
 :root {
   --radius: 1rem;

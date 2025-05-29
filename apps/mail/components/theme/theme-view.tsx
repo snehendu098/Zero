@@ -1,17 +1,20 @@
 "use client"
 
 import { useState } from "react"
-import { Check, Moon, Sun, X } from "lucide-react"
+import { Check, Moon, Plus, Sun, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { themesApiReponse } from "@/lib/themes"
-import { generateThemeData } from "@/lib/themes/theme-utils"
+import { generateCustomThemeData, generateThemeData } from "@/lib/themes/theme-utils"
 import { useCurrentTheme } from "@/components/context/theme-context"
 import type { ThemeOption } from "@/types"
+import { useNavigate } from "react-router"
 
 export default function ThemesPage() {
-    const { activeTheme: selectedTheme, applyTheme, revertToDefault, parseThemeOption } = useCurrentTheme()
+    const { activeTheme: selectedTheme, applyTheme, revertToDefault, parseThemeOption, customThemes: userCustomThemes } = useCurrentTheme()
     const [previewTheme, setPreviewTheme] = useState<ThemeOption | null>(null)
+
+    const navigate = useNavigate()
 
     const defaultThemes = [
         {
@@ -42,6 +45,7 @@ export default function ThemesPage() {
 
     // Generate custom themes from API data using utility function
     const customThemes = generateThemeData(themesApiReponse)
+    const userThemes = generateCustomThemeData(userCustomThemes)
 
     const handleThemeClick = (themeOption: ThemeOption) => {
         // If clicking on already selected theme, revert to default
@@ -179,10 +183,13 @@ export default function ThemesPage() {
                     <section>
                         <div className="flex items-center justify-between mb-6">
                             <div>
-                                <h3 className="text-2xl font-semibold">Default Themes</h3>
-                                <p className="text-muted-foreground">Built-in themes from your design system</p>
+                                <h3 className="text-2xl font-semibold">Your Themes</h3>
+                                <p className="text-muted-foreground">Built-in themes and your created themes</p>
                             </div>
-                            <span className="text-sm text-muted-foreground">{defaultThemes.length} themes</span>
+                            <Button onClick={() => navigate("/settings/appearance/create")} className="flex items-center">
+                                <Plus className="h-4 w-4" />
+                                Create
+                            </Button>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -234,6 +241,77 @@ export default function ThemesPage() {
                             ))}
                         </div>
                     </section>
+
+                    {/* Custom made themes */}
+                    {userThemes.length > 0 &&
+                        <section>
+                            <div className="flex items-center justify-between mb-6">
+                                <div>
+                                    <h3 className="text-2xl font-semibold">Created Themes</h3>
+                                    <p className="text-muted-foreground">Your Created Themes</p>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                {userThemes.map((theme, index) => {
+                                    const isSelected = selectedTheme === theme.id
+
+                                    return (
+                                        <div key={theme.id} className="contents">
+                                            <Card
+                                                className={`overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 ${isSelected ? "ring-2 ring-primary shadow-lg" : ""
+                                                    }`}
+                                                onClick={() => {
+                                                    console.log(theme.css)
+                                                    handleThemeClick(theme.id as ThemeOption)
+                                                }}
+                                            >
+                                                <div
+                                                    className="h-32 flex items-center justify-center relative"
+                                                    style={{
+                                                        backgroundColor: theme.variant === "dark" ? "#1F2937" : theme.colors.primary,
+                                                        color: theme.variant === "dark" ? theme.colors.primary : "#ffffff",
+                                                    }}
+                                                >
+                                                    {theme.variant === "dark" ? <Moon className="h-12 w-12" /> : <Sun className="h-12 w-12" />}
+                                                    {isSelected && (
+                                                        <div className="absolute top-2 right-2 bg-white/20 rounded-full p-1">
+                                                            <Check className="h-4 w-4 text-white" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-lg capitalize">
+                                                        {theme.name} {theme.variant}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardFooter className="pt-0">
+                                                    <div className="flex items-center justify-between w-full">
+                                                        <div className="flex gap-1">
+                                                            {Object.values(theme.colors)
+                                                                .slice(0, 3)
+                                                                .map((color, colorIndex) => (
+                                                                    <div
+                                                                        key={colorIndex}
+                                                                        className="w-3 h-3 rounded-full border border-gray-200"
+                                                                        style={{ backgroundColor: color as any }}
+                                                                    />
+                                                                ))}
+                                                        </div>
+                                                        {isSelected && <Check className="h-4 w-4 text-primary" />}
+                                                    </div>
+                                                </CardFooter>
+                                            </Card>
+
+                                            {/* Show preview after this theme if it should be shown */}
+                                            {shouldShowPreviewAfter(index, userThemes) && renderPreviewPanel()}
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        </section>
+
+                    }
 
                     {/* Custom Themes Section */}
                     <section>
