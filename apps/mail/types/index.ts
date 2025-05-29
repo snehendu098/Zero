@@ -136,6 +136,30 @@ export interface Note {
 }
 
 
-export type ThemeName = "claude" | "t3" | "bubblegum"
+export type ThemeName = string
 export type ThemeVariant = "light" | "dark"
 export type ThemeOption = `${ThemeName}-${ThemeVariant}`
+
+export interface ThemeColors {
+  primary: string
+  secondary: string
+  accent: string
+  muted: string
+}
+
+export interface ApiThemeResponse {
+  name: string
+  desctiption: string // keeping the typo from your API
+  css: string
+  id: string
+}
+
+export interface ThemeData {
+  id: string
+  name: string
+  variant: ThemeVariant
+  description: string
+  colors: ThemeColors
+  css: string
+  themeId: string // original theme ID from API
+}

@@ -1,264 +1,304 @@
 "use client"
 
-import { useContext } from "react"
-import { Check, Moon, Sun } from "lucide-react"
+import { useState } from "react"
+import { Check, Moon, Sun, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { themes } from "@/lib/themes"
-import { CurrentThemeContext } from "../context/theme-context"
-import type { ThemeName, ThemeOption } from "@/types"
-
-
+import { themesApiReponse } from "@/lib/themes"
+import { generateThemeData } from "@/lib/themes/theme-utils"
+import { useCurrentTheme } from "@/components/context/theme-context"
+import type { ThemeOption } from "@/types"
 
 export default function ThemesPage() {
+    const { activeTheme: selectedTheme, applyTheme, revertToDefault, parseThemeOption } = useCurrentTheme()
+    const [previewTheme, setPreviewTheme] = useState<ThemeOption | null>(null)
 
-    const { mounted, activeTheme, applyTheme, removeTheme } = useContext(CurrentThemeContext)
+    const defaultThemes = [
+        {
+            id: "default-light",
+            name: "Default Light",
+            variant: "light" as const,
+            description: "System default light theme from your design system",
+            colors: {
+                primary: "#000000",
+                secondary: "#f1f5f9",
+                accent: "#f1f5f9",
+                muted: "#f1f5f9",
+            },
+        },
+        {
+            id: "default-dark",
+            name: "Default Dark",
+            variant: "dark" as const,
+            description: "System default dark theme from your design system",
+            colors: {
+                primary: "#ffffff",
+                secondary: "#1e293b",
+                accent: "#1e293b",
+                muted: "#1e293b",
+            },
+        },
+    ]
 
-    // Prevent hydration mismatch
-    if (!mounted) return null
+    // Generate custom themes from API data using utility function
+    const customThemes = generateThemeData(themesApiReponse)
 
-    const themeDescriptions = {
-        claude: "A warm, earthy theme with orange and brown tones, inspired by natural materials.",
-        t3: "A vibrant purple theme with rich contrasts, perfect for creative applications.",
-        bubblegum: "A playful, colorful theme with pink and teal accents, featuring fun shadow effects.",
+    const handleThemeClick = (themeOption: ThemeOption) => {
+        // If clicking on already selected theme, revert to default
+        if (themeOption === selectedTheme) {
+            revertToDefault()
+            setPreviewTheme(null)
+        } else {
+            applyTheme(themeOption)
+            setPreviewTheme(themeOption)
+        }
     }
 
-    const themeColors = {
-        claude: {
-            primary: "#E97451",
-            secondary: "#F2D0A4",
-            accent: "#F2D0A4",
-            muted: "#E0E0D1",
-        },
-        t3: {
-            primary: "#E14283",
-            secondary: "#DABFDA",
-            accent: "#DABFDA",
-            muted: "#C8B1D6",
-        },
-        bubblegum: {
-            primary: "#FF6B98",
-            secondary: "#5FBDB0",
-            accent: "#FFD23F",
-            muted: "#9EEAE0",
-        },
+    const closePreview = () => {
+        setPreviewTheme(null)
     }
+
+    const getDisplayName = (option: ThemeOption) => {
+        const { name, variant } = parseThemeOption(option)
+        const displayName = name === "default" ? "Default" : name.charAt(0).toUpperCase() + name.slice(1)
+        return `${displayName} ${variant.charAt(0).toUpperCase() + variant.slice(1)}`
+    }
+
+    // Helper function to determine if preview should be shown after this theme
+    const shouldShowPreviewAfter = (themeIndex: number, themes: any[]) => {
+        if (!previewTheme) return false
+
+        const previewThemeIndex = themes.findIndex((theme) => theme.id === previewTheme)
+        if (previewThemeIndex === -1) return false
+
+        const themesPerRow = 4
+        const previewThemeRow = Math.floor(previewThemeIndex / themesPerRow)
+        const currentThemeRow = Math.floor(themeIndex / themesPerRow)
+        const lastThemeInRow = (currentThemeRow + 1) * themesPerRow - 1
+        const isLastThemeInPreviewRow =
+            themeIndex === Math.min(lastThemeInRow, themes.length - 1) && currentThemeRow === previewThemeRow
+
+        return isLastThemeInPreviewRow
+    }
+
+    const renderPreviewPanel = () => (
+        <div className="col-span-full">
+            <Card className="mt-6 border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle className="text-xl">Theme Preview</CardTitle>
+                        <CardDescription>Preview of {previewTheme && getDisplayName(previewTheme)} theme</CardDescription>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={closePreview}>
+                        <X className="h-4 w-4" />
+                    </Button>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    {/* Buttons Preview */}
+                    <div>
+                        <h4 className="text-sm font-medium mb-3">Buttons</h4>
+                        <div className="flex flex-wrap gap-3">
+                            <Button>Primary</Button>
+                            <Button variant="secondary">Secondary</Button>
+                            <Button variant="outline">Outline</Button>
+                            <Button variant="ghost">Ghost</Button>
+                            <Button variant="destructive">Destructive</Button>
+                        </div>
+                    </div>
+
+                    {/* Colors Preview */}
+                    <div>
+                        <h4 className="text-sm font-medium mb-3">Colors</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div className="space-y-1">
+                                <div className="h-12 bg-primary rounded-md flex items-center justify-center text-primary-foreground text-xs font-medium">
+                                    Primary
+                                </div>
+                                <p className="text-xs text-center text-muted-foreground">primary</p>
+                            </div>
+                            <div className="space-y-1">
+                                <div className="h-12 bg-secondary rounded-md flex items-center justify-center text-secondary-foreground text-xs font-medium">
+                                    Secondary
+                                </div>
+                                <p className="text-xs text-center text-muted-foreground">secondary</p>
+                            </div>
+                            <div className="space-y-1">
+                                <div className="h-12 bg-accent rounded-md flex items-center justify-center text-accent-foreground text-xs font-medium">
+                                    Accent
+                                </div>
+                                <p className="text-xs text-center text-muted-foreground">accent</p>
+                            </div>
+                            <div className="space-y-1">
+                                <div className="h-12 bg-muted rounded-md flex items-center justify-center text-muted-foreground text-xs font-medium">
+                                    Muted
+                                </div>
+                                <p className="text-xs text-center text-muted-foreground">muted</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Components Preview */}
+                    <div>
+                        <h4 className="text-sm font-medium mb-3">Components</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <Card className="max-w-sm">
+                                <CardHeader>
+                                    <CardTitle>Sample Card</CardTitle>
+                                    <CardDescription>This is how cards look with this theme</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-sm">Content area with theme colors applied.</p>
+                                </CardContent>
+                                <CardFooter>
+                                    <Button size="sm">Action</Button>
+                                </CardFooter>
+                            </Card>
+
+                            <div className="space-y-3">
+                                <h5 className="text-sm font-medium">Typography</h5>
+                                <div className="space-y-2">
+                                    <h6 className="font-semibold">Heading Text</h6>
+                                    <p className="text-sm text-muted-foreground">
+                                        This is how regular text appears with the selected theme.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    )
 
     return (
-        <div className="text-foreground">
-
+        <div className="h-full text-foreground">
             {/* Main Content */}
             <main className="container mx-auto px-4 py-8">
-                <div className="max-w-4xl mx-auto space-y-8">
+                <div className="max-w-7xl mx-auto space-y-12">
+                    {/* Default Themes Section */}
                     <section>
+                        <div className="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 className="text-2xl font-semibold">Default Themes</h3>
+                                <p className="text-muted-foreground">Built-in themes from your design system</p>
+                            </div>
+                            <span className="text-sm text-muted-foreground">{defaultThemes.length} themes</span>
+                        </div>
 
-
-                        <Tabs defaultValue="all" className="w-full">
-                            <TabsList className="mb-6">
-                                <TabsTrigger value="all">All Themes</TabsTrigger>
-                                <TabsTrigger value="light">Light Themes</TabsTrigger>
-                                <TabsTrigger value="dark">Dark Themes</TabsTrigger>
-                            </TabsList>
-
-                            {/* All Themes */}
-                            <TabsContent value="all" className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {Object.keys(themes).map((themeName) => (
-                                        <div key={themeName} className="space-y-4">
-                                            <h3 className="text-xl font-semibold capitalize">{themeName}</h3>
-                                            <p className="text-sm text-muted-foreground">{themeDescriptions[themeName as ThemeName]}</p>
-
-                                            <div className="grid grid-cols-2 gap-4">
-                                                {/* Light Variant */}
-                                                <Card
-                                                    className={`overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md ${activeTheme === `${themeName}-light` ? "ring-2 ring-primary" : ""
-                                                        }`}
-                                                    onClick={() => (activeTheme !== `${themeName}-light`) ? applyTheme(`${themeName}-light` as ThemeOption) : removeTheme()}
-                                                >
-                                                    <div
-                                                        className="h-24 flex items-center justify-center"
-                                                        style={{ backgroundColor: themeColors[themeName as ThemeName].primary }}
-                                                    >
-                                                        <Sun className="h-8 w-8 text-white" />
-                                                    </div>
-                                                    <CardFooter className="flex justify-between p-3">
-                                                        <span className="text-sm font-medium">Light</span>
-                                                        {activeTheme === `${themeName}-light` && <Check className="h-4 w-4" />}
-                                                    </CardFooter>
-                                                </Card>
-
-                                                {/* Dark Variant */}
-                                                <Card
-                                                    className={`overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md ${activeTheme === `${themeName}-dark` ? "ring-2 ring-primary" : ""
-                                                        }`}
-                                                    onClick={() => activeTheme !== `${themeName}-dark` ? applyTheme(`${themeName}-dark` as ThemeOption) : removeTheme()}
-                                                >
-                                                    <div
-                                                        className="h-24 flex items-center justify-center"
-                                                        style={{
-                                                            backgroundColor: "#1F2937",
-                                                            color: themeColors[themeName as ThemeName].primary,
-                                                        }}
-                                                    >
-                                                        <Moon className="h-8 w-8" />
-                                                    </div>
-                                                    <CardFooter className="flex justify-between p-3">
-                                                        <span className="text-sm font-medium">Dark</span>
-                                                        {activeTheme === `${themeName}-dark` && <Check className="h-4 w-4" />}
-                                                    </CardFooter>
-                                                </Card>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </TabsContent>
-
-                            {/* Light Themes */}
-                            <TabsContent value="light" className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {Object.keys(themes).map((themeName) => (
-                                        <Card
-                                            key={`${themeName}-light`}
-                                            className={`overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md ${activeTheme === `${themeName}-light` ? "ring-2 ring-primary" : ""
-                                                }`}
-                                            onClick={() => applyTheme(`${themeName}-light` as ThemeOption)}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {defaultThemes.map((theme, index) => (
+                                <div key={theme.id} className="contents">
+                                    <Card
+                                        className={`overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 ${selectedTheme === theme.id ? "ring-2 ring-primary shadow-lg" : ""
+                                            }`}
+                                        onClick={() => handleThemeClick(theme.id as ThemeOption)}
+                                    >
+                                        <div
+                                            className="h-32 flex items-center justify-center relative"
+                                            style={{
+                                                backgroundColor: theme.variant === "dark" ? "#1F2937" : "#F8F9FA",
+                                                color: theme.variant === "dark" ? "#ffffff" : "#000000",
+                                            }}
                                         >
-                                            <div
-                                                className="h-32 flex items-center justify-center"
-                                                style={{ backgroundColor: themeColors[themeName as ThemeName].primary }}
-                                            >
-                                                <Sun className="h-10 w-10 text-white" />
-                                            </div>
-                                            <CardHeader className="pb-2">
-                                                <CardTitle className="capitalize">{themeName} Light</CardTitle>
-                                                <CardDescription>{themeDescriptions[themeName as ThemeName]}</CardDescription>
-                                            </CardHeader>
-                                            <CardFooter className="flex justify-between pt-0">
-                                                <div className="flex gap-2">
-                                                    {Object.values(themeColors[themeName as ThemeName]).map((color, index) => (
-                                                        <div key={index} className="w-4 h-4 rounded-full" style={{ backgroundColor: color }}></div>
-                                                    ))}
+                                            {theme.variant === "dark" ? <Moon className="h-12 w-12" /> : <Sun className="h-12 w-12" />}
+                                            {selectedTheme === theme.id && (
+                                                <div className="absolute top-2 right-2 bg-primary/20 rounded-full p-1">
+                                                    <Check className="h-4 w-4 text-primary" />
                                                 </div>
-                                                {activeTheme === `${themeName}-light` && <Check className="h-4 w-4" />}
-                                            </CardFooter>
-                                        </Card>
-                                    ))}
-                                </div>
-                            </TabsContent>
-
-                            {/* Dark Themes */}
-                            <TabsContent value="dark" className="space-y-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    {Object.keys(themes).map((themeName) => (
-                                        <Card
-                                            key={`${themeName}-dark`}
-                                            className={`overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md ${activeTheme === `${themeName}-dark` ? "ring-2 ring-primary" : ""
-                                                }`}
-                                            onClick={() => applyTheme(`${themeName}-dark` as ThemeOption)}
-                                        >
-                                            <div
-                                                className="h-32 flex items-center justify-center"
-                                                style={{
-                                                    backgroundColor: "#1F2937",
-                                                    color: themeColors[themeName as ThemeName].primary,
-                                                }}
-                                            >
-                                                <Moon className="h-10 w-10" />
-                                            </div>
-                                            <CardHeader className="pb-2">
-                                                <CardTitle className="capitalize">{themeName} Dark</CardTitle>
-                                                <CardDescription>{themeDescriptions[themeName as ThemeName]}</CardDescription>
-                                            </CardHeader>
-                                            <CardFooter className="flex justify-between pt-0">
-                                                <div className="flex gap-2">
-                                                    {Object.values(themeColors[themeName as ThemeName]).map((color, index) => (
-                                                        <div
-                                                            key={index}
-                                                            className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600"
-                                                            style={{ backgroundColor: color }}
-                                                        ></div>
-                                                    ))}
-                                                </div>
-                                                {activeTheme === `${themeName}-dark` && <Check className="h-4 w-4" />}
-                                            </CardFooter>
-                                        </Card>
-                                    ))}
-                                </div>
-                            </TabsContent>
-                        </Tabs>
-                    </section>
-
-                    {/* Theme Preview Section */}
-                    <section className="mt-12">
-                        <h2 className="text-2xl font-bold mb-6">Preview Current Theme</h2>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Theme Preview</CardTitle>
-                                <CardDescription>See how your selected theme affects various UI elements</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                {/* Buttons Preview */}
-                                <div>
-                                    <h4 className="text-sm font-medium mb-3">Buttons</h4>
-                                    <div className="flex flex-wrap gap-3">
-                                        <Button>Primary</Button>
-                                        <Button variant="secondary">Secondary</Button>
-                                        <Button variant="outline">Outline</Button>
-                                        <Button variant="ghost">Ghost</Button>
-                                        <Button variant="destructive">Destructive</Button>
-                                    </div>
-                                </div>
-
-                                {/* Colors Preview */}
-                                <div>
-                                    <h4 className="text-sm font-medium mb-3">Colors</h4>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                        <div className="space-y-1">
-                                            <div className="h-12 bg-primary rounded-md flex items-center justify-center text-primary-foreground text-xs font-medium">
-                                                Primary
-                                            </div>
-                                            <p className="text-xs text-center text-muted-foreground">primary</p>
+                                            )}
                                         </div>
-                                        <div className="space-y-1">
-                                            <div className="h-12 bg-secondary rounded-md flex items-center justify-center text-secondary-foreground text-xs font-medium">
-                                                Secondary
-                                            </div>
-                                            <p className="text-xs text-center text-muted-foreground">secondary</p>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <div className="h-12 bg-accent rounded-md flex items-center justify-center text-accent-foreground text-xs font-medium">
-                                                Accent
-                                            </div>
-                                            <p className="text-xs text-center text-muted-foreground">accent</p>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <div className="h-12 bg-muted rounded-md flex items-center justify-center text-muted-foreground text-xs font-medium">
-                                                Muted
-                                            </div>
-                                            <p className="text-xs text-center text-muted-foreground">muted</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Card Preview */}
-                                <div>
-                                    <h4 className="text-sm font-medium mb-3">Card</h4>
-                                    <Card className="max-w-sm">
-                                        <CardHeader>
-                                            <CardTitle>Card Title</CardTitle>
-                                            <CardDescription>Card description goes here</CardDescription>
+                                        <CardHeader className="pb-2">
+                                            <CardTitle className="text-lg">{theme.name}</CardTitle>
                                         </CardHeader>
-                                        <CardContent>
-                                            <p className="text-sm">This is how content looks in a card with your selected theme.</p>
-                                        </CardContent>
-                                        <CardFooter>
-                                            <Button size="sm">Action</Button>
+                                        <CardFooter className="pt-0">
+                                            <div className="flex items-center justify-between w-full">
+                                                <div className="flex gap-1">
+                                                    {Object.values(theme.colors)
+                                                        .slice(0, 3)
+                                                        .map((color, colorIndex) => (
+                                                            <div
+                                                                key={colorIndex}
+                                                                className="w-3 h-3 rounded-full border border-gray-200"
+                                                                style={{ backgroundColor: color }}
+                                                            />
+                                                        ))}
+                                                </div>
+                                                {selectedTheme === theme.id && <Check className="h-4 w-4 text-primary" />}
+                                            </div>
                                         </CardFooter>
                                     </Card>
+
+                                    {/* Show preview after this theme if it should be shown */}
+                                    {shouldShowPreviewAfter(index, defaultThemes) && renderPreviewPanel()}
                                 </div>
-                            </CardContent>
-                        </Card>
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* Custom Themes Section */}
+                    <section>
+                        <div className="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 className="text-2xl font-semibold">Custom Themes</h3>
+                                <p className="text-muted-foreground">Handcrafted themes for unique experiences</p>
+                            </div>
+                            <span className="text-sm text-muted-foreground">{customThemes.length} themes</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {customThemes.map((theme, index) => {
+                                const isSelected = selectedTheme === theme.id
+
+                                return (
+                                    <div key={theme.id} className="contents">
+                                        <Card
+                                            className={`overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 ${isSelected ? "ring-2 ring-primary shadow-lg" : ""
+                                                }`}
+                                            onClick={() => handleThemeClick(theme.id as ThemeOption)}
+                                        >
+                                            <div
+                                                className="h-32 flex items-center justify-center relative"
+                                                style={{
+                                                    backgroundColor: theme.variant === "dark" ? "#1F2937" : theme.colors.primary,
+                                                    color: theme.variant === "dark" ? theme.colors.primary : "#ffffff",
+                                                }}
+                                            >
+                                                {theme.variant === "dark" ? <Moon className="h-12 w-12" /> : <Sun className="h-12 w-12" />}
+                                                {isSelected && (
+                                                    <div className="absolute top-2 right-2 bg-white/20 rounded-full p-1">
+                                                        <Check className="h-4 w-4 text-white" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <CardHeader className="pb-2">
+                                                <CardTitle className="text-lg capitalize">
+                                                    {theme.name} {theme.variant}
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardFooter className="pt-0">
+                                                <div className="flex items-center justify-between w-full">
+                                                    <div className="flex gap-1">
+                                                        {Object.values(theme.colors)
+                                                            .slice(0, 3)
+                                                            .map((color, colorIndex) => (
+                                                                <div
+                                                                    key={colorIndex}
+                                                                    className="w-3 h-3 rounded-full border border-gray-200"
+                                                                    style={{ backgroundColor: color as any }}
+                                                                />
+                                                            ))}
+                                                    </div>
+                                                    {isSelected && <Check className="h-4 w-4 text-primary" />}
+                                                </div>
+                                            </CardFooter>
+                                        </Card>
+
+                                        {/* Show preview after this theme if it should be shown */}
+                                        {shouldShowPreviewAfter(index, customThemes) && renderPreviewPanel()}
+                                    </div>
+                                )
+                            })}
+                        </div>
                     </section>
                 </div>
             </main>

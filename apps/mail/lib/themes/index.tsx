@@ -1,5 +1,10 @@
-export const themes = {
-    "claude": `
+import type { ApiThemeResponse } from "@/types"
+
+export const themesApiReponse: ApiThemeResponse[] = [
+  {
+    name: "Claude",
+    desctiption: "lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    css: `
 :root {
   --radius: 0.5rem;
   --background: 48 33.333% 97.059%;
@@ -83,7 +88,12 @@ export const themes = {
   --shadow-color: hsl(0 0% 0%);
 }
     `,
-    t3: `
+    id: "387584754n53454h28475",
+  },
+  {
+    name: "T3",
+    desctiption: "lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    css: `
 :root {
   --radius: 0.5rem;
   --background: 300 60% 98.039%;
@@ -167,7 +177,12 @@ export const themes = {
   --shadow-color: hsl(0 0% 0%);
 }
     `,
-    bubblegum: `
+    id: "387584754n53454h28475t3",
+  },
+  {
+    name: "Bubblegum",
+    desctiption: "lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    css: `
 :root {
   --radius: 1rem;
   --background: 330 47.059% 93.333%;
@@ -250,5 +265,7 @@ export const themes = {
   
   --shadow-color: hsl(206.154 28.058% 27.255%);
 }
-    `
-}
+    `,
+    id: "387584754n53454h28475bubblegum",
+  },
+]
