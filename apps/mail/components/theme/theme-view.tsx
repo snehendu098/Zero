@@ -1,13 +1,11 @@
 "use client"
 
-import { useState, useEffect, useContext } from "react"
+import { useContext } from "react"
 import { Check, Moon, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { themes } from "@/lib/themes"
-import { useTheme } from "next-themes"
-import { useAtom } from "jotai"
 import { CurrentThemeContext } from "../context/theme-context"
 import type { ThemeName, ThemeOption } from "@/types"
 
@@ -15,7 +13,7 @@ import type { ThemeName, ThemeOption } from "@/types"
 
 export default function ThemesPage() {
 
-    const { mounted, activeTheme, applyTheme } = useContext(CurrentThemeContext)
+    const { mounted, activeTheme, applyTheme, removeTheme } = useContext(CurrentThemeContext)
 
     // Prevent hydration mismatch
     if (!mounted) return null
@@ -76,7 +74,7 @@ export default function ThemesPage() {
                                                 <Card
                                                     className={`overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md ${activeTheme === `${themeName}-light` ? "ring-2 ring-primary" : ""
                                                         }`}
-                                                    onClick={() => applyTheme(`${themeName}-light` as ThemeOption)}
+                                                    onClick={() => (activeTheme !== `${themeName}-light`) ? applyTheme(`${themeName}-light` as ThemeOption) : removeTheme()}
                                                 >
                                                     <div
                                                         className="h-24 flex items-center justify-center"
@@ -94,7 +92,7 @@ export default function ThemesPage() {
                                                 <Card
                                                     className={`overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md ${activeTheme === `${themeName}-dark` ? "ring-2 ring-primary" : ""
                                                         }`}
-                                                    onClick={() => applyTheme(`${themeName}-dark` as ThemeOption)}
+                                                    onClick={() => activeTheme !== `${themeName}-dark` ? applyTheme(`${themeName}-dark` as ThemeOption) : removeTheme()}
                                                 >
                                                     <div
                                                         className="h-24 flex items-center justify-center"

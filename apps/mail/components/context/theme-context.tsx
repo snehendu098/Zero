@@ -13,6 +13,7 @@ export const CurrentThemeContext = createContext<{
     isTransitioning: boolean;
     setIsTransitioning: (isTransitioning: boolean) => void;
     applyTheme: (themeOption: ThemeOption) => void;
+    removeTheme: () => void;
 }>({
     mounted: false,
     setMounted: () => { },
@@ -21,6 +22,7 @@ export const CurrentThemeContext = createContext<{
     isTransitioning: false,
     setIsTransitioning: () => { },
     applyTheme: () => { },
+    removeTheme: () => { },
 });
 
 export const ThemeContextProvider = ({ children }: { children: React.ReactNode }) => {
@@ -38,7 +40,7 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
     }
 
     // Apply the selected theme with smooth transitions
-    const applyTheme = (themeOption: ThemeOption) => {
+    const applyTheme = (themeOption: ThemeOption, themeStyle?: string) => {
         if (isTransitioning) return
 
         setIsTransitioning(true)
@@ -58,7 +60,7 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
             // Create and inject new theme styles
             const style = document.createElement("style")
             style.id = "dynamic-theme-style"
-            style.innerHTML = themes[name]
+            style.innerHTML = themeStyle ? themeStyle : themes[name]
             document.head.appendChild(style)
 
             // Set dark mode based on variant
@@ -72,6 +74,9 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
 
             setActiveTheme(themeOption)
             localStorage.setItem("selected-theme", themeOption)
+            if (!themeStyle) {
+                localStorage.setItem("selected-theme-style", themes[name])
+            }
 
             // Remove transition class after animation completes
             setTimeout(() => {
@@ -81,12 +86,23 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
         })
     }
 
+    const removeTheme = () => {
+        const existingStyle = document.getElementById("dynamic-theme-style")
+        if (existingStyle) {
+            existingStyle.remove()
+        }
+
+        localStorage.removeItem("selected-theme")
+        localStorage.removeItem("selected-theme-style")
+    }
+
     useEffect(() => {
         setMounted(true)
         const savedTheme = localStorage.getItem("selected-theme") as ThemeOption | null
+        const savedThemeStyle = localStorage.getItem("selected-theme-style") || ""
         if (savedTheme) {
             setActiveTheme(savedTheme)
-            applyTheme(savedTheme)
+            applyTheme(savedTheme, savedThemeStyle)
         }
     }, [])
 
@@ -100,6 +116,7 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
             isTransitioning,
             setIsTransitioning,
             applyTheme,
+            removeTheme
         }}>
             {children}
         </CurrentThemeContext.Provider>
