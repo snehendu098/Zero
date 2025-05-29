@@ -233,6 +233,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
   }
@@ -283,18 +284,6 @@
   background-color: hsl(var(--background));
   border-radius: 0.5rem;
   padding: 0.5rem;
-}
-
-/* remove outline */
-.ProseMirror:focus {
-  outline: none;
-}
-
-/* set */
-.ProseMirror {
-  min-height: 200px;
-  max-height: 300px;
-  overflow: scroll;
 }
 
 /* Animation keyframes */
