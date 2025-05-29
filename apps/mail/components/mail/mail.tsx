@@ -798,8 +798,8 @@ export const Categories = () => {
       icon: (
         <Lightning
           className={cn(
-            'fill-muted-foreground dark:fill-white',
-            category === 'Important' && 'fill-white',
+            'fill-primary-foreground',
+            // category === 'Important' && 'fill-white',
           )}
         />
       ),

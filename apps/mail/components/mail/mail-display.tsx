@@ -182,7 +182,7 @@ const MailDisplayLabels = ({ labels }: { labels: string[] }) => {
 
         switch (normalizedLabel) {
           case 'important':
-            icon = <Lightning className="h-3.5 w-3.5 fill-primary" />;
+            icon = <Lightning className="h-3.5 w-3.5 fill-primary-foreground" />;
             bgColor = 'bg-primary';
             break;
           case 'promotions':
@@ -1033,7 +1033,7 @@ const MailDisplay = ({ emailData, index, totalEmails, demo, threadAttachments }:
                 </span>
               </span>
               <AiSummary />
-              
+
               <div className="mt-2 flex items-center gap-2">
                 {emailData?.tags?.length ? (
                   <MailDisplayLabels labels={emailData?.tags.map((t) => t.name) || []} />
