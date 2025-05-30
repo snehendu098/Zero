@@ -806,6 +806,10 @@ const CreateThemePage = () => {
     )
 }
 
+
+
+export default CreateThemePage
+
 const ColorInput = ({
     label,
     value,
@@ -846,5 +850,3 @@ const ColorInput = ({
         {description && <p className="text-xs text-muted-foreground">{description}</p>}
     </div>
 )
-
-export default CreateThemePage

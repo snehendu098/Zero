@@ -3,7 +3,7 @@ import CreateThemePage from '@/components/theme/create-theme'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 import React from 'react'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 
 const Page = () => {
 
@@ -11,7 +11,7 @@ const Page = () => {
 
     return (
         <div className='grid gap-6' >
-            <SettingsCard title="Create Theme" description='Create your own theme for your own purpose' action={<Button onClick={() => navigate(-1)} ><ArrowLeft />Go back</Button>} >
+            <SettingsCard title="Create Theme" description='Create your own theme for your own purpose' action={<Link to='/settings/appearance'><Button><ArrowLeft />Go back</Button></Link>} >
                 <CreateThemePage />
             </SettingsCard >
         </div >

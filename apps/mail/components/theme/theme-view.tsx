@@ -8,7 +8,7 @@ import { themesApiReponse } from "@/lib/themes"
 import { generateCustomThemeData, generateThemeData } from "@/lib/themes/theme-utils"
 import { useCurrentTheme } from "@/components/context/theme-context"
 import type { ThemeOption } from "@/types"
-import { useNavigate } from "react-router"
+import { Link, useNavigate } from "react-router"
 
 export default function ThemesPage() {
     const { activeTheme: selectedTheme, applyTheme, revertToDefault, parseThemeOption, customThemes: userCustomThemes } = useCurrentTheme()
@@ -48,11 +48,22 @@ export default function ThemesPage() {
     const userThemes = generateCustomThemeData(userCustomThemes)
 
     const handleThemeClick = (themeOption: ThemeOption) => {
-        // If clicking on already selected theme, revert to default
+        console.log('🖱️ Theme clicked:', themeOption, 'Currently selected:', selectedTheme)
+
+        // For default themes, always apply directly - no special logic
+        if (themeOption.startsWith('default-')) {
+            applyTheme(themeOption)
+            setPreviewTheme(themeOption)
+            return
+        }
+
+        // For non-default themes, if clicking on already selected theme, revert to default
         if (themeOption === selectedTheme) {
+            console.log('🔄 Reverting to default theme')
             revertToDefault()
             setPreviewTheme(null)
         } else {
+            console.log('✨ Applying new theme')
             applyTheme(themeOption)
             setPreviewTheme(themeOption)
         }
@@ -186,10 +197,13 @@ export default function ThemesPage() {
                                 <h3 className="text-2xl font-semibold">Your Themes</h3>
                                 <p className="text-muted-foreground">Built-in themes and your created themes</p>
                             </div>
-                            <Button onClick={() => navigate("/settings/appearance/create")} className="flex items-center">
-                                <Plus className="h-4 w-4" />
-                                Create
-                            </Button>
+                            <Link to={"/settings/appearance/create"}>
+                                <Button className="flex items-center">
+                                    <Plus className="h-4 w-4" />
+                                    Create
+                                </Button>
+
+                            </Link>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
