@@ -23,10 +23,10 @@ import {
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useOptimisticThreadState } from '@/components/mail/optimistic-thread-state';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router';
 import { useOptimisticActions } from '@/hooks/use-optimistic-actions';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { focusedIndexAtom } from '@/hooks/use-mail-navigation';
 import { backgroundQueueAtom } from '@/store/backgroundQueue';
 import { type ThreadDestination } from '@/lib/thread-actions';
@@ -34,20 +34,19 @@ import { handleUnsubscribe } from '@/lib/email-utils.client';
 import { useThread, useThreads } from '@/hooks/use-threads';
 import { useAISidebar } from '@/components/ui/ai-sidebar';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import type { ParsedMessage, Attachment } from '@/types';
 import { MailDisplaySkeleton } from './mail-skeleton';
 import { useTRPC } from '@/providers/query-provider';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { useStats } from '@/hooks/use-stats';
-import ThreadSubject from './thread-subject';
-import type { ParsedMessage, Attachment } from '@/types';
 import ReplyCompose from './reply-composer';
 import { useTranslations } from 'use-intl';
 import { NotesPanel } from './note-panel';
 import { cn, FOLDERS } from '@/lib/utils';
 import MailDisplay from './mail-display';
-import { Inbox } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { Inbox } from 'lucide-react';
 import { useQueryState } from 'nuqs';
 import { format } from 'date-fns';
 import { useAtom } from 'jotai';
@@ -510,24 +509,23 @@ export function ThreadDisplay() {
         </head>
         <body>
           ${emailData?.messages
-            ?.map(
-              (message, index) => `
+          ?.map(
+            (message, index) => `
             <div class="email-container">
               <div class="email-header">
                 ${index === 0 ? `<h1 class="email-title">${message.subject || 'No Subject'}</h1>` : ''}
 
 
-                ${
-                  message?.tags && message.tags.length > 0
-                    ? `
+                ${message?.tags && message.tags.length > 0
+                ? `
                   <div class="labels-section">
                     ${message.tags
-                      .map((tag) => `<span class="label-badge">${tag.name}</span>`)
-                      .join('')}
+                  .map((tag) => `<span class="label-badge">${tag.name}</span>`)
+                  .join('')}
                   </div>
                 `
-                    : ''
-                }
+                : ''
+              }
 
 
                 <div class="email-meta">
@@ -540,61 +538,58 @@ export function ThreadDisplay() {
                   </div>
 
 
-                  ${
-                    message.to && message.to.length > 0
-                      ? `
+                  ${message.to && message.to.length > 0
+                ? `
                     <div class="meta-row">
                       <span class="meta-label">To:</span>
                       <span class="meta-value">
                         ${message.to
-                          .map(
-                            (recipient) =>
-                              `${cleanNameDisplay(recipient.name)} <${recipient.email}>`,
-                          )
-                          .join(', ')}
+                  .map(
+                    (recipient) =>
+                      `${cleanNameDisplay(recipient.name)} <${recipient.email}>`,
+                  )
+                  .join(', ')}
                       </span>
                     </div>
                   `
-                      : ''
-                  }
+                : ''
+              }
 
 
-                  ${
-                    message.cc && message.cc.length > 0
-                      ? `
+                  ${message.cc && message.cc.length > 0
+                ? `
                     <div class="meta-row">
                       <span class="meta-label">CC:</span>
                       <span class="meta-value">
                         ${message.cc
-                          .map(
-                            (recipient) =>
-                              `${cleanNameDisplay(recipient.name)} <${recipient.email}>`,
-                          )
-                          .join(', ')}
+                  .map(
+                    (recipient) =>
+                      `${cleanNameDisplay(recipient.name)} <${recipient.email}>`,
+                  )
+                  .join(', ')}
                       </span>
                     </div>
                   `
-                      : ''
-                  }
+                : ''
+              }
 
 
-                  ${
-                    message.bcc && message.bcc.length > 0
-                      ? `
+                  ${message.bcc && message.bcc.length > 0
+                ? `
                     <div class="meta-row">
                       <span class="meta-label">BCC:</span>
                       <span class="meta-value">
                         ${message.bcc
-                          .map(
-                            (recipient) =>
-                              `${cleanNameDisplay(recipient.name)} <${recipient.email}>`,
-                          )
-                          .join(', ')}
+                  .map(
+                    (recipient) =>
+                      `${cleanNameDisplay(recipient.name)} <${recipient.email}>`,
+                  )
+                  .join(', ')}
                       </span>
                     </div>
                   `
-                      : ''
-                  }
+                : ''
+              }
 
 
                   <div class="meta-row">
@@ -613,30 +608,29 @@ export function ThreadDisplay() {
               </div>
 
 
-              ${
-                message.attachments && message.attachments.length > 0
-                  ? `
+              ${message.attachments && message.attachments.length > 0
+                ? `
                 <div class="attachments-section">
                   <h2 class="attachments-title">Attachments (${message.attachments.length})</h2>
                   ${message.attachments
-                    .map(
-                      (attachment, index) => `
+                  .map(
+                    (attachment, index) => `
                     <div class="attachment-item">
                       <span class="attachment-name">${attachment.filename}</span>
                       ${formatFileSize(attachment.size) ? ` - <span class="attachment-size">${formatFileSize(attachment.size)}</span>` : ''}
                     </div>
                   `,
-                    )
-                    .join('')}
+                  )
+                  .join('')}
                 </div>
               `
-                  : ''
+                : ''
               }
             </div>
             ${index < emailData.messages.length - 1 ? '<div class="separator"></div>' : ''}
           `,
-            )
-            .join('')}
+          )
+          .join('')}
         </body>
       </html>
     `;
