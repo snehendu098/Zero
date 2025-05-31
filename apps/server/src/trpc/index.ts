@@ -5,6 +5,7 @@ import { shortcutRouter } from './routes/shortcut';
 import { settingsRouter } from './routes/settings';
 import { getContext } from 'hono/context-storage';
 import { draftsRouter } from './routes/drafts';
+import { themesRouter } from './routes/themes';
 import { labelsRouter } from './routes/label';
 import { brainRouter } from './routes/brain';
 import { notesRouter } from './routes/notes';
@@ -26,6 +27,7 @@ export const appRouter = router({
   shortcut: shortcutRouter,
   settings: settingsRouter,
   user: userRouter,
+  themes: themesRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -57,3 +57,43 @@ export const userSettingsSchema = z.object({
 });
 
 export type UserSettings = z.infer<typeof userSettingsSchema>;
+
+// Theme schemas
+export const themeColorsSchema = z.object({
+  primary: z.string(),
+  secondary: z.string(),
+  accent: z.string(),
+  muted: z.string(),
+  background: z.string(),
+  foreground: z.string(),
+  card: z.string(),
+  cardForeground: z.string(),
+  border: z.string(),
+  ring: z.string(),
+  sidebar: z.string(),
+  sidebarForeground: z.string(),
+  sidebarAccent: z.string(),
+  sidebarAccentForeground: z.string(),
+  panel: z.string(),
+  radius: z.string(),
+});
+
+export const themeDataSchema = z.object({
+  lightColors: themeColorsSchema,
+  darkColors: themeColorsSchema,
+});
+
+export const createThemeSchema = z.object({
+  name: z.string().min(1).max(100),
+  description: z.string().max(500).optional(),
+  themeData: themeDataSchema,
+  isPublic: z.boolean().default(false),
+});
+
+export const updateThemeSchema = createThemeSchema.partial().extend({
+  id: z.string(),
+});
+
+export type ThemeData = z.infer<typeof themeDataSchema>;
+export type CreateTheme = z.infer<typeof createThemeSchema>;
+export type UpdateTheme = z.infer<typeof updateThemeSchema>;

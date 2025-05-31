@@ -135,75 +135,55 @@ export interface Note {
   updatedAt: Date;
 }
 
-
-export type ThemeName = string
-export type ThemeVariant = "light" | "dark"
-export type ThemeOption = `${ThemeName}-${ThemeVariant}`
+export type ThemeName = string;
+export type ThemeVariant = 'light' | 'dark';
+export type ThemeOption = `${ThemeName}-${ThemeVariant}`;
 
 export interface ThemeColors {
-  primary: string
-  secondary: string
-  accent: string
-  muted: string
-  background: string
-  foreground: string
-  card: string
-  cardForeground: string
-  border: string
-  ring: string
-  sidebar: string
-  sidebarForeground: string
-  sidebarAccent: string
-  sidebarAccentForeground: string
-  panel: string
-  radius: string
+  primary: string;
+  secondary: string;
+  accent: string;
+  muted: string;
+  background: string;
+  foreground: string;
+  card: string;
+  cardForeground: string;
+  border: string;
+  ring: string;
+  sidebar: string;
+  sidebarForeground: string;
+  sidebarAccent: string;
+  sidebarAccentForeground: string;
+  panel: string;
+  radius: string;
 }
 
 export interface ApiThemeResponse {
-  name: string
-  description: string // keeping the typo from your API
-  css: string
-  id: string
+  name: string;
+  description: string;
+  css: string;
+  id: string;
 }
 
 export interface ThemeData {
-  id: string
-  name: string
-  variant: ThemeVariant
-  description: string
-  colors: ThemeColors
-  css: string
-  themeId: string // original theme ID from API
-  isCustom?: boolean
-}
-
-export interface ThemeColors {
-  primary: string
-  secondary: string
-  accent: string
-  muted: string
-  background: string
-  foreground: string
-  card: string
-  cardForeground: string
-  border: string
-  ring: string
-  sidebar: string
-  sidebarForeground: string
-  sidebarAccent: string
-  sidebarAccentForeground: string
-  panel: string
-  radius: string
+  id: string;
+  name: string;
+  variant: ThemeVariant;
+  description: string;
+  colors: ThemeColors;
+  css: string;
+  themeId: string; // original theme ID from API
+  isCustom?: boolean;
 }
 
 export interface CustomTheme {
-  name: string
-  description: string
+  name: string;
+  description: string;
   colors: {
-    light: ThemeColors
-    dark?: ThemeColors
-  }
-  id: string
-  createdAt?: string
-  hasDarkMode: boolean
+    light: ThemeColors;
+    dark?: ThemeColors;
+  };
+  id: string;
+  createdAt?: string;
+  hasDarkMode: boolean;
 }

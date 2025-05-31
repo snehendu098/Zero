@@ -7,6 +7,7 @@ import {
   jsonb,
   primaryKey,
   unique,
+  uuid,
 } from 'drizzle-orm/pg-core';
 import { defaultUserSettings } from '../lib/schemas';
 
@@ -165,3 +166,17 @@ export const writingStyleMatrix = createTable(
     ];
   },
 );
+
+export const theme = createTable('theme', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  connectionId: text('connection_id').references(() => connection.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  description: text('description'),
+  themeData: jsonb('theme_data').notNull(),
+  isPublic: boolean('is_public').default(false),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});

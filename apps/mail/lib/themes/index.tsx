@@ -1,9 +1,9 @@
-import type { ApiThemeResponse } from "@/types"
+import type { ApiThemeResponse } from '@/types';
 
 export const themesApiReponse: ApiThemeResponse[] = [
   {
-    name: "Claude",
-    description: "lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    name: 'Claude',
+    description: 'lorem ipsum dolor sit amet, consectetur adipiscing elit.',
     css: `
 :root {
   --radius: 0.5rem;
@@ -88,11 +88,11 @@ export const themesApiReponse: ApiThemeResponse[] = [
   --shadow-color: hsl(0 0% 0%);
 }
     `,
-    id: "387584754n53454h28475",
+    id: '387584754n53454h28475',
   },
   {
-    name: "T3",
-    description: "lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    name: 'T3',
+    description: 'lorem ipsum dolor sit amet, consectetur adipiscing elit.',
     css: `
 :root {
   --radius: 0.5rem;
@@ -177,11 +177,11 @@ export const themesApiReponse: ApiThemeResponse[] = [
   --shadow-color: hsl(0 0% 0%);
 }
     `,
-    id: "387584754n53454h28475t3",
+    id: '387584754n53454h28475t3',
   },
   {
-    name: "Bubblegum",
-    description: "lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    name: 'Bubblegum',
+    description: 'lorem ipsum dolor sit amet, consectetur adipiscing elit.',
     css: `
 :root {
   --radius: 1rem;
@@ -266,6 +266,6 @@ export const themesApiReponse: ApiThemeResponse[] = [
   --shadow-color: hsl(206.154 28.058% 27.255%);
 }
     `,
-    id: "387584754n53454h28475bubblegum",
+    id: '387584754n53454h28475bubblegum',
   },
-]
+];
