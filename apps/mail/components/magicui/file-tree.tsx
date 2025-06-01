@@ -231,7 +231,7 @@ const Folder = forwardRef<HTMLDivElement, FolderProps & React.HTMLAttributes<HTM
       <Accordion.Item {...props} value={value} className="relative h-full overflow-hidden">
         <div
           className={cn(
-            `flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm hover:bg-black/10 dark:hover:bg-[#202020]`,
+            `hover:bg-accent/50 flex items-center gap-1 rounded-lg px-2 py-1.5 text-sm`,
             className,
             {
               'bg-sidebar-accent rounded-md': isSelect && isSelectable,

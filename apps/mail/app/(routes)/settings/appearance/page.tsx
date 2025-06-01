@@ -19,9 +19,6 @@ type Theme = 'dark' | 'light' | 'system';
 
 export default function AppearancePage() {
   const t = useTranslations();
-  const { data, refetch } = useSettings();
-  const { theme, systemTheme, resolvedTheme, setTheme } = useTheme();
-  const trpc = useTRPC();
 
   return (
     <div className="grid gap-6">

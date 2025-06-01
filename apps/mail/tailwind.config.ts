@@ -29,7 +29,7 @@ export default {
         mainBlue: '#437DFB',
         subtleWhite: '#EAEAEA',
         subtleBlack: '#1F1F1F',
-        background: 'hsl(var(--sidebar))',
+        background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         skyBlue: '#0066FF',
         shinyGray: '#A1A1A1',

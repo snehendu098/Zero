@@ -1,5 +1,3 @@
-'use client';
-
 import {
   Card,
   CardContent,
@@ -8,12 +6,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { generateCustomThemeData, generateThemeData } from '@/lib/themes/theme-utils';
+import { generateCustomThemeData, parseTheme } from '@/lib/themes/theme-utils';
 import { useCurrentTheme } from '@/components/context/theme-context';
 import { Check, Moon, Plus, Sun, X } from 'lucide-react';
+import type { ThemeData, ThemeOption } from '@/types';
 import { Button } from '@/components/ui/button';
-import { themesApiReponse } from '@/lib/themes';
-import type { ThemeOption } from '@/types';
+import { useThemes } from '@/hooks/use-themes';
+import { defaultThemes } from '@/lib/themes';
 import { Link } from 'react-router';
 import { useState } from 'react';
 
@@ -22,73 +21,47 @@ export default function ThemesPage() {
     activeTheme: selectedTheme,
     applyTheme,
     revertToDefault,
-    parseThemeOption,
     customThemes: userCustomThemes,
   } = useCurrentTheme();
   const [previewTheme, setPreviewTheme] = useState<ThemeOption | null>(null);
 
-  const defaultThemes = [
-    {
-      id: 'default-light',
-      name: 'Default Light',
-      variant: 'light' as const,
-      description: 'System default light theme from your design system',
-      colors: {
-        primary: '#000000',
-        secondary: '#f1f5f9',
-        accent: '#f1f5f9',
-        muted: '#f1f5f9',
-      },
-    },
-    {
-      id: 'default-dark',
-      name: 'Default Dark',
-      variant: 'dark' as const,
-      description: 'System default dark theme from your design system',
-      colors: {
-        primary: '#ffffff',
-        secondary: '#1e293b',
-        accent: '#1e293b',
-        muted: '#1e293b',
-      },
-    },
-  ];
-
   // Generate custom themes from API data using utility function
-  const customThemes = generateThemeData(themesApiReponse);
   const userThemes = generateCustomThemeData(userCustomThemes);
 
-  const handleThemeClick = (themeOption: ThemeOption) => {
-    console.log('🖱️ Theme clicked:', themeOption, 'Currently selected:', selectedTheme);
+  const { useUserThemes } = useThemes();
 
-    // For default themes, always apply directly - no special logic
-    if (themeOption.startsWith('default-')) {
-      applyTheme(themeOption);
-      setPreviewTheme(themeOption);
-      return;
-    }
+  const { data: userThemesData, isLoading, isError } = useUserThemes();
 
-    // For non-default themes, if clicking on already selected theme, revert to default
-    if (themeOption === selectedTheme) {
-      console.log('🔄 Reverting to default theme');
-      revertToDefault();
-      setPreviewTheme(null);
-    } else {
-      console.log('✨ Applying new theme');
-      applyTheme(themeOption);
-      setPreviewTheme(themeOption);
+  console.log(isLoading, userThemesData, isError);
+
+  const handleThemeClick = (themeParams: ThemeData) => {
+    console.log('🖱️ Theme clicked:', themeParams.name, 'Currently selected:', selectedTheme);
+    console.log('✨ Applying new theme');
+    applyTheme(themeParams);
+  };
+
+  const handleDefaultThemeClick = (theme: (typeof defaultThemes)[0]) => {
+    const [name, variant] = (theme.name as string).toLowerCase().split(' ');
+
+    console.log(
+      '🖱️ Default theme clicked:',
+      (theme.name as string).toLowerCase().split(' ').join('-'),
+      'Currently selected:',
+      selectedTheme,
+    );
+
+    if (`${name}-${variant}` !== selectedTheme) {
+      if (variant === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     }
+    revertToDefault(variant as 'light' | 'dark');
   };
 
   const closePreview = () => {
     setPreviewTheme(null);
-  };
-
-  const getDisplayName = (option: ThemeOption) => {
-    const { name, variant } = parseThemeOption(option);
-    const displayName =
-      name === 'default' ? 'Default' : name.charAt(0).toUpperCase() + name.slice(1);
-    return `${displayName} ${variant.charAt(0).toUpperCase() + variant.slice(1)}`;
   };
 
   // Helper function to determine if preview should be shown after this theme
@@ -115,9 +88,7 @@ export default function ThemesPage() {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle className="text-xl">Theme Preview</CardTitle>
-            <CardDescription>
-              Preview of {previewTheme && getDisplayName(previewTheme)} theme
-            </CardDescription>
+            <CardDescription>Preview</CardDescription>
           </div>
           <Button variant="ghost" size="icon" onClick={closePreview}>
             <X className="h-4 w-4" />
@@ -227,7 +198,10 @@ export default function ThemesPage() {
                     className={`cursor-pointer overflow-hidden transition-all duration-200 hover:scale-105 hover:shadow-lg ${
                       selectedTheme === theme.id ? 'ring-primary shadow-lg ring-2' : ''
                     }`}
-                    onClick={() => handleThemeClick(theme.id as ThemeOption)}
+                    onClick={() => {
+                      handleDefaultThemeClick(theme);
+                      // console.log(selectedTheme, theme.id);
+                    }}
                   >
                     <div
                       className="relative flex h-32 items-center justify-center"
@@ -275,8 +249,8 @@ export default function ThemesPage() {
             </div>
           </section>
 
-          {/* Custom made themes */}
-          {userThemes.length > 0 && (
+          {/* User made themes */}
+          {userThemesData && userThemesData?.themes.length > 0 && (
             <section>
               <div className="mb-6 flex items-center justify-between">
                 <div>
@@ -286,8 +260,8 @@ export default function ThemesPage() {
               </div>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                {userThemes.map((theme, index) => {
-                  const isSelected = selectedTheme === theme.id;
+                {parseTheme(userThemesData).map((theme, index) => {
+                  const isSelected = selectedTheme === `${theme.id}-${theme.variant}`;
 
                   return (
                     <div key={theme.id} className="contents">
@@ -296,8 +270,8 @@ export default function ThemesPage() {
                           isSelected ? 'ring-primary shadow-lg ring-2' : ''
                         }`}
                         onClick={() => {
-                          console.log(theme.css);
-                          handleThemeClick(theme.id as ThemeOption);
+                          if (isSelected) revertToDefault();
+                          else handleThemeClick(theme);
                         }}
                       >
                         <div
@@ -352,7 +326,7 @@ export default function ThemesPage() {
           )}
 
           {/* Custom Themes Section */}
-          <section>
+          {/* <section>
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h3 className="text-2xl font-semibold">Custom Themes</h3>
@@ -413,15 +387,15 @@ export default function ThemesPage() {
                           {isSelected && <Check className="text-primary h-4 w-4" />}
                         </div>
                       </CardFooter>
-                    </Card>
+                    </Card> */}
 
-                    {/* Show preview after this theme if it should be shown */}
-                    {shouldShowPreviewAfter(index, customThemes) && renderPreviewPanel()}
-                  </div>
+          {/* Show preview after this theme if it should be shown */}
+          {/* {shouldShowPreviewAfter(index, customThemes) && renderPreviewPanel()} */}
+          {/* </div>
                 );
-              })}
-            </div>
-          </section>
+              })} */}
+          {/* </div>
+          </section> */}
         </div>
       </main>
     </div>

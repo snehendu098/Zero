@@ -120,7 +120,8 @@ export const themesRouter = router({
     .input(
       z.object({
         limit: z.number().min(1).max(100).default(20),
-        offset: z.number().min(0).default(0),
+        cursor: z.string().optional().default(''),
+        q: z.string().optional().default(''),
       }),
     )
     .use(async ({ ctx, next }) => {
@@ -128,8 +129,17 @@ export const themesRouter = router({
       return next({ ctx: { ...ctx, themeManager } });
     })
     .query(async ({ ctx, input }) => {
-      const themes = await ctx.themeManager.getPublicThemes(input.limit, input.offset);
-      return { themes };
+      const offset = input.cursor ? parseInt(input.cursor) : 0;
+      const themes = await ctx.themeManager.getPublicThemes(
+        input.limit,
+        offset,
+        input.q, // Add search support
+      );
+
+      return {
+        themes,
+        nextPageToken: themes.length === input.limit ? (offset + input.limit).toString() : null,
+      };
     }),
 
   // Get public theme details (for preview before copying)

@@ -154,13 +154,12 @@ export interface ThemeColors {
   sidebarForeground: string;
   sidebarAccent: string;
   sidebarAccentForeground: string;
-  panel: string;
   radius: string;
 }
 
 export interface ApiThemeResponse {
   name: string;
-  description: string;
+  description: string | null;
   css: string;
   id: string;
 }
@@ -169,7 +168,7 @@ export interface ThemeData {
   id: string;
   name: string;
   variant: ThemeVariant;
-  description: string;
+  description: string | null;
   colors: ThemeColors;
   css: string;
   themeId: string; // original theme ID from API

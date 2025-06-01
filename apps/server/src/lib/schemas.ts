@@ -74,7 +74,6 @@ export const themeColorsSchema = z.object({
   sidebarForeground: z.string(),
   sidebarAccent: z.string(),
   sidebarAccentForeground: z.string(),
-  panel: z.string(),
   radius: z.string(),
 });
 
@@ -93,6 +92,18 @@ export const createThemeSchema = z.object({
 export const updateThemeSchema = createThemeSchema.partial().extend({
   id: z.string(),
 });
+
+export type Theme = {
+  id: string;
+  userId: string;
+  connectionId: string | null;
+  name: string;
+  description: string | null;
+  themeData: ThemeData;
+  isPublic: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export type ThemeData = z.infer<typeof themeDataSchema>;
 export type CreateTheme = z.infer<typeof createThemeSchema>;

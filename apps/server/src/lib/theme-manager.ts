@@ -1,19 +1,7 @@
-import type { CreateTheme, ThemeData, UpdateTheme } from './schemas';
-import { and, desc, eq } from 'drizzle-orm';
+import type { CreateTheme, Theme, ThemeData, UpdateTheme } from './schemas';
+import { and, desc, eq, like, or } from 'drizzle-orm';
 import { theme } from '../db/schema';
 import type { DB } from '../db';
-
-export interface Theme {
-  id: string;
-  userId: string;
-  connectionId: string | null;
-  name: string;
-  description: string | null;
-  themeData: ThemeData;
-  isPublic: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 export class ThemeManager {
   constructor(private db: DB) {}
@@ -84,14 +72,36 @@ export class ThemeManager {
     };
   }
 
-  async getPublicThemes(limit = 50, offset = 0): Promise<Theme[]> {
-    const rows = await this.db
-      .select()
-      .from(theme)
-      .where(eq(theme.isPublic, true))
-      .orderBy(desc(theme.createdAt))
-      .limit(limit)
-      .offset(offset);
+  async getPublicThemes(limit = 50, offset = 0, searchQuery = ''): Promise<Theme[]> {
+    let rows;
+
+    if (searchQuery) {
+      rows = await this.db
+        .select()
+        .from(theme)
+        .where(
+          and(
+            or(
+              eq(theme.name, searchQuery),
+              eq(theme.description, searchQuery),
+              like(theme.name, `%${searchQuery}%`),
+              like(theme.description, `%${searchQuery}%`),
+            ),
+            eq(theme.isPublic, true),
+          ),
+        )
+        .orderBy(desc(theme.createdAt))
+        .limit(limit)
+        .offset(offset);
+    } else {
+      rows = await this.db
+        .select()
+        .from(theme)
+        .where(eq(theme.isPublic, true))
+        .orderBy(desc(theme.createdAt))
+        .limit(limit)
+        .offset(offset);
+    }
 
     return rows.map((row) => ({
       id: row.id,
