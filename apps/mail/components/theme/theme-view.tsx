@@ -15,6 +15,43 @@ import { useThemes } from '@/hooks/use-themes';
 import { defaultThemes } from '@/lib/themes';
 import { Link } from 'react-router';
 import { useState } from 'react';
+import ThemeCustomizer from './theme-customizer';
+import { AnimatePresence, motion } from 'motion/react';
+
+const dialogVariants = {
+  hidden: {
+    opacity: 0,
+    scale: 0.85,
+    y: 50, // Start slightly lower
+  },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 25,
+      mass: 0.7,
+    },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.85,
+    y: 50, // Exit downwards
+    transition: {
+      duration: 0.2,
+      ease: "easeOut",
+    },
+  },
+}
+
+const backdropVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.3 } },
+  exit: { opacity: 0, transition: { duration: 0.2 } },
+}
+
 
 export default function ThemesPage() {
   const {
@@ -24,6 +61,7 @@ export default function ThemesPage() {
     customThemes: userCustomThemes,
   } = useCurrentTheme();
   const [previewTheme, setPreviewTheme] = useState<ThemeOption | null>(null);
+  const [open, setOpen] = useState<boolean>(false)
 
   // Generate custom themes from API data using utility function
   const userThemes = generateCustomThemeData(userCustomThemes);
@@ -183,12 +221,61 @@ export default function ThemesPage() {
                 <h3 className="text-2xl font-semibold">Your Themes</h3>
                 <p className="text-muted-foreground">Built-in themes and your created themes</p>
               </div>
-              <Link to={'/settings/appearance/create'}>
-                <Button className="flex items-center">
+              
+                <Button onClick={() => setOpen(true)} className="flex items-center">
                   <Plus className="h-4 w-4" />
                   Create
                 </Button>
-              </Link>
+
+                 <AnimatePresence>
+        {open && (
+          <div
+            // This outer div acts as a portal target and ensures correct stacking context
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            aria-labelledby="theme-creator-dialog"
+            role="dialog"
+            aria-modal="true"
+          >
+            {/* Backdrop */}
+            <motion.div
+              key="backdrop"
+              variants={backdropVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="absolute inset-0 bg-black/60" // Slightly darker backdrop
+              onClick={() => setOpen(false)}
+            />
+
+            {/* Dialog Content */}
+            <motion.div
+              key="dialog-content"
+              variants={dialogVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="relative bg-background border border-border rounded-lg shadow-2xl w-[95vw] h-[95vh] max-w-none overflow-hidden flex flex-col" // Added flex flex-col
+            >
+              {/* Close Button - ensure it's above the ThemeCreator content */}
+              <button
+                onClick={() => setOpen(false)}
+                className="absolute top-3 right-3 z-20 p-2 rounded-full hover:bg-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label="Close theme creator"
+              >
+                <X className="w-5 h-5" /> {/* Slightly larger icon */}
+              </button>
+
+              {/* Theme Creator - ensure it takes full height and allows internal scrolling */}
+              <div className="flex-1 overflow-hidden">
+                {" "}
+                {/* This div will contain ThemeCreator and manage its overflow */}
+                <ThemeCustomizer />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+              
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
