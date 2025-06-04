@@ -4,13 +4,14 @@ import { connectionsRouter } from './routes/connections';
 import { shortcutRouter } from './routes/shortcut';
 import { settingsRouter } from './routes/settings';
 import { getContext } from 'hono/context-storage';
-import { draftsRouter } from './routes/drafts';
 import { themesRouter } from './routes/themes';
+import { draftsRouter } from './routes/drafts';
 import { labelsRouter } from './routes/label';
-import { brainRouter } from './routes/brain';
+import { voiceRouter } from './routes/voice';
 import { notesRouter } from './routes/notes';
-import { mailRouter } from './routes/mail';
+import { brainRouter } from './routes/brain';
 import { userRouter } from './routes/user';
+import { mailRouter } from './routes/mail';
 import type { HonoContext } from '../ctx';
 import { aiRouter } from './routes/ai';
 import { router } from './trpc';
@@ -27,6 +28,7 @@ export const appRouter = router({
   shortcut: shortcutRouter,
   settings: settingsRouter,
   user: userRouter,
+  voice: voiceRouter,
   themes: themesRouter,
 });
 
@@ -39,7 +41,7 @@ export const serverTrpc = () => {
   const c = getContext<HonoContext>();
   return appRouter.createCaller({
     c,
-    session: c.var.session,
+    sessionUser: c.var.sessionUser,
     db: c.var.db,
     auth: c.var.auth,
     autumn: c.var.autumn,
