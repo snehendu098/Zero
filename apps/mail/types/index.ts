@@ -147,11 +147,11 @@ export interface ThemeColors {
   background: string;
   foreground: string;
   card: string;
-  cardForeground: string;
+  cardForeground?: string;
   border: string;
   ring: string;
   sidebar: string;
-  sidebarForeground: string;
+  sidebarForeground?: string;
   sidebarAccent: string;
   sidebarAccentForeground: string;
   radius: string;
@@ -160,8 +160,8 @@ export interface ThemeColors {
 export interface ApiThemeResponse {
   name: string;
   description: string | null;
-  css: string;
   id: string;
+  css: string
 }
 
 export interface ThemeData {

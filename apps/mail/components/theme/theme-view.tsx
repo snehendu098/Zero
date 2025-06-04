@@ -9,14 +9,13 @@ import {
 import { generateCustomThemeData, parseTheme } from '@/lib/themes/theme-utils';
 import { useCurrentTheme } from '@/components/context/theme-context';
 import { Check, Moon, Plus, Sun, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import type { ThemeData, ThemeOption } from '@/types';
 import { Button } from '@/components/ui/button';
 import { useThemes } from '@/hooks/use-themes';
+import ThemeCreator from './theme-customizer';
 import { defaultThemes } from '@/lib/themes';
-import { Link } from 'react-router';
 import { useState } from 'react';
-import ThemeCustomizer from './theme-customizer';
-import { AnimatePresence, motion } from 'motion/react';
 
 const dialogVariants = {
   hidden: {
@@ -29,7 +28,7 @@ const dialogVariants = {
     scale: 1,
     y: 0,
     transition: {
-      type: "spring",
+      type: 'spring',
       stiffness: 400,
       damping: 25,
       mass: 0.7,
@@ -41,17 +40,16 @@ const dialogVariants = {
     y: 50, // Exit downwards
     transition: {
       duration: 0.2,
-      ease: "easeOut",
+      ease: 'easeOut',
     },
   },
-}
+};
 
 const backdropVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { duration: 0.3 } },
   exit: { opacity: 0, transition: { duration: 0.2 } },
-}
-
+};
 
 export default function ThemesPage() {
   const {
@@ -61,7 +59,7 @@ export default function ThemesPage() {
     customThemes: userCustomThemes,
   } = useCurrentTheme();
   const [previewTheme, setPreviewTheme] = useState<ThemeOption | null>(null);
-  const [open, setOpen] = useState<boolean>(false)
+  const [open, setOpen] = useState<boolean>(false);
 
   // Generate custom themes from API data using utility function
   const userThemes = generateCustomThemeData(userCustomThemes);
@@ -221,61 +219,60 @@ export default function ThemesPage() {
                 <h3 className="text-2xl font-semibold">Your Themes</h3>
                 <p className="text-muted-foreground">Built-in themes and your created themes</p>
               </div>
-              
-                <Button onClick={() => setOpen(true)} className="flex items-center">
-                  <Plus className="h-4 w-4" />
-                  Create
-                </Button>
 
-                 <AnimatePresence>
-        {open && (
-          <div
-            // This outer div acts as a portal target and ensures correct stacking context
-            className="fixed inset-0 z-50 flex items-center justify-center"
-            aria-labelledby="theme-creator-dialog"
-            role="dialog"
-            aria-modal="true"
-          >
-            {/* Backdrop */}
-            <motion.div
-              key="backdrop"
-              variants={backdropVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="absolute inset-0 bg-black/60" // Slightly darker backdrop
-              onClick={() => setOpen(false)}
-            />
+              <Button onClick={() => setOpen(true)} className="flex items-center">
+                <Plus className="h-4 w-4" />
+                Create
+              </Button>
 
-            {/* Dialog Content */}
-            <motion.div
-              key="dialog-content"
-              variants={dialogVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="relative bg-background border border-border rounded-lg shadow-2xl w-[95vw] h-[95vh] max-w-none overflow-hidden flex flex-col" // Added flex flex-col
-            >
-              {/* Close Button - ensure it's above the ThemeCreator content */}
-              <button
-                onClick={() => setOpen(false)}
-                className="absolute top-3 right-3 z-20 p-2 rounded-full hover:bg-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                aria-label="Close theme creator"
-              >
-                <X className="w-5 h-5" /> {/* Slightly larger icon */}
-              </button>
+              <AnimatePresence>
+                {open && (
+                  <div
+                    // This outer div acts as a portal target and ensures correct stacking context
+                    className="fixed inset-0 z-50 flex items-center justify-center"
+                    aria-labelledby="theme-creator-dialog"
+                    role="dialog"
+                    aria-modal="true"
+                  >
+                    {/* Backdrop */}
+                    <motion.div
+                      key="backdrop"
+                      variants={backdropVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="absolute inset-0 bg-black/60" // Slightly darker backdrop
+                      onClick={() => setOpen(false)}
+                    />
 
-              {/* Theme Creator - ensure it takes full height and allows internal scrolling */}
-              <div className="flex-1 overflow-hidden">
-                {" "}
-                {/* This div will contain ThemeCreator and manage its overflow */}
-                <ThemeCustomizer />
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-              
+                    {/* Dialog Content */}
+                    <motion.div
+                      key="dialog-content"
+                      variants={dialogVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      className="bg-background border-border relative flex h-[95vh] w-[95vw] max-w-none flex-col overflow-hidden rounded-lg border shadow-2xl" // Added flex flex-col
+                    >
+                      {/* Close Button - ensure it's above the ThemeCreator content */}
+                      <button
+                        onClick={() => setOpen(false)}
+                        className="hover:bg-muted focus-visible:ring-ring absolute right-3 top-3 z-20 rounded-full p-2 transition-colors focus:outline-none focus-visible:ring-2"
+                        aria-label="Close theme creator"
+                      >
+                        <X className="h-5 w-5" /> {/* Slightly larger icon */}
+                      </button>
+
+                      {/* Theme Creator - ensure it takes full height and allows internal scrolling */}
+                      <div className="flex-1 overflow-hidden">
+                        {' '}
+                        {/* This div will contain ThemeCreator and manage its overflow */}
+                        <ThemeCreator />
+                      </div>
+                    </motion.div>
+                  </div>
+                )}
+              </AnimatePresence>
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">

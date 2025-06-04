@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Select,
   SelectContent,
@@ -5,20 +7,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Palette, Sun, Moon, Download, Globe } from 'lucide-react';
+import { Palette, Sun, Moon, Download, Globe, CornerDownRight, SaveIcon } from 'lucide-react';
+import type { CreateTheme, ThemeColorSchema, ThemeDataSchema } from '@zero/server/schemas';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Separator } from '@/components/ui/separator';
-import { useState, useEffect, useRef } from 'react';
 import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
+import { useThemes } from '@/hooks/use-themes';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { PreviewComponent } from './preview';
 import { SketchPicker } from 'react-color';
+import { toast } from 'sonner';
 import type React from 'react';
 
 // Theme variable definitions
-const darkTheme = {
-  radius: '0.5rem', // Added radius
+const defaultDarkTheme = {
+  radius: '0.5rem',
   background: '270 7% 8%',
   foreground: '0 0% 95%',
   card: '270 7% 10%',
@@ -49,8 +54,8 @@ const darkTheme = {
   'shadow-color': '0 0% 0%',
 };
 
-const lightTheme = {
-  radius: '0.5rem', // Added radius
+const defaultLightTheme = {
+  radius: '0.5rem',
   background: '0 0% 100%',
   foreground: '240 10% 3.9%',
   card: '0 0% 100%',
@@ -106,12 +111,10 @@ const colorGroups = [
     name: 'Sidebar',
     variables: [
       'sidebar',
+      'accent',
       'sidebar-foreground',
-      'sidebar-primary',
-      'sidebar-primary-foreground',
       'sidebar-accent',
       'sidebar-accent-foreground',
-      'sidebar-border',
     ],
   },
 ];
@@ -209,13 +212,24 @@ function hexToHsl(hex: string): string {
   }
 }
 
-const generateThemeStyles = (theme: typeof darkTheme): React.CSSProperties => {
+const generateThemeStyles = (theme: typeof defaultDarkTheme): React.CSSProperties => {
   const styles: Record<string, string> = {};
   Object.entries(theme).forEach(([key, value]) => {
     styles[`--${key}` as any] = value;
   });
   return styles as React.CSSProperties;
 };
+
+// Parse rem value to number (e.g. "0.5rem" -> 0.5)
+function parseRemValue(remValue: string): number {
+  const match = remValue.match(/^([\d.]+)rem$/);
+  return match ? Number.parseFloat(match[1]) : 0.5; // Default to 0.5 if parsing fails
+}
+
+// Format number to rem string (e.g. 0.5 -> "0.5rem")
+function formatRemValue(value: number): string {
+  return `${value}rem`;
+}
 
 export default function ThemeCreator() {
   // Theme settings state
@@ -224,23 +238,152 @@ export default function ThemeCreator() {
   const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'both'>('both');
   const [isPublic, setIsPublic] = useState(false);
 
+  // Separate theme states for light and dark modes
+  const [lightTheme, setLightTheme] = useState(defaultLightTheme);
+  const [darkTheme, setDarkTheme] = useState(defaultDarkTheme);
+
   // Current editing state
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const [currentTheme, setCurrentTheme] = useState(darkTheme);
   const [activeColorVar, setActiveColorVar] = useState<string | null>(null);
   const [colorPickerPosition, setColorPickerPosition] = useState({ top: 0, left: 0 });
   const colorPickerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Switch between light and dark theme editing
+  const { createTheme } = useThemes();
+
+  // Get current theme based on editing mode
+  const currentTheme = isDarkMode ? darkTheme : lightTheme;
+
+  // Radius state - initialize from current theme
+  const [radiusValue, setRadiusValue] = useState(() => parseRemValue(currentTheme.radius));
+
+  // Apply theme to iframe using multiple approaches
+  const applyThemeToIframe = useCallback(
+    (() => {
+      let timeoutId: NodeJS.Timeout;
+      return (theme: typeof defaultDarkTheme, isDark: boolean) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+          const iframe = iframeRef.current;
+          if (!iframe) return;
+
+          // Method 1: Try direct DOM access (same origin)
+          try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+            if (iframeDoc) {
+              const root = iframeDoc.documentElement;
+
+              // Apply CSS variables
+              Object.entries(theme).forEach(([key, value]) => {
+                root.style.setProperty(`--${key}`, value as string);
+              });
+
+              // Apply theme classes
+              root.classList.toggle('dark', isDark);
+              root.classList.toggle('light', !isDark);
+
+              return; // Success, exit early
+            }
+          } catch (error) {
+            // Expected for cross-origin iframes, continue to next method
+          }
+
+          // Method 2: PostMessage fallback
+          try {
+            if (iframe.contentWindow) {
+              iframe.contentWindow.postMessage(
+                {
+                  type: 'THEME_UPDATE',
+                  theme,
+                  isDarkMode: isDark,
+                },
+                '*', // In production, use specific origin
+              );
+            }
+          } catch (error) {
+            console.warn('Failed to apply theme to iframe:', error);
+          }
+
+          // Method 3: URL parameter approach (as last resort)
+          // This would require reloading the iframe, so we skip it for real-time updates
+        }, 50); // Reduced debounce for better responsiveness
+      };
+    })(),
+    [],
+  );
+
+  // Handle radius changes
+  const handleRadiusChange = useCallback(
+    (newRadius: number) => {
+      setRadiusValue(newRadius);
+      const radiusString = formatRemValue(newRadius);
+
+      if (isDarkMode) {
+        setDarkTheme((prev) => ({ ...prev, radius: radiusString }));
+      } else {
+        setLightTheme((prev) => ({ ...prev, radius: radiusString }));
+      }
+    },
+    [isDarkMode],
+  );
+
+  // Update radius value when switching between themes
   useEffect(() => {
-    setCurrentTheme(isDarkMode ? { ...darkTheme } : { ...lightTheme });
+    const newRadiusValue = parseRemValue(currentTheme.radius);
+    setRadiusValue(newRadiusValue);
+  }, [isDarkMode]); // Only depend on isDarkMode, not currentTheme.radius
 
-    if (themeMode === 'light' && isDarkMode) {
-      setIsDarkMode(false);
-    } else if (themeMode === 'dark' && !isDarkMode) {
-      setIsDarkMode(true);
+  // Apply theme changes to iframe
+  useEffect(() => {
+    applyThemeToIframe(currentTheme, isDarkMode);
+  }, [currentTheme, isDarkMode, applyThemeToIframe]);
+
+  // Handle iframe load
+  const handleIframeLoad = useCallback(() => {
+    // Add message listener to iframe content (if same origin)
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    try {
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (iframeDoc && iframe.contentWindow) {
+        // Inject theme listener script into iframe
+        const script = iframeDoc.createElement('script');
+        script.textContent = `
+          (function() {
+            function applyTheme(theme, isDarkMode) {
+              const root = document.documentElement;
+              Object.entries(theme).forEach(([key, value]) => {
+                root.style.setProperty('--' + key, value);
+              });
+              root.classList.toggle('dark', isDarkMode);
+              root.classList.toggle('light', !isDarkMode);
+            }
+            
+            window.addEventListener('message', function(event) {
+              if (event.data && event.data.type === 'THEME_UPDATE') {
+                applyTheme(event.data.theme, event.data.isDarkMode);
+              }
+            });
+          })();
+        `;
+
+        // Remove existing script if present
+        const existingScript = iframeDoc.querySelector('#theme-listener');
+        if (existingScript) {
+          existingScript.remove();
+        }
+
+        script.id = 'theme-listener';
+        iframeDoc.head.appendChild(script);
+      }
+    } catch (error) {
+      // Cross-origin iframe, the postMessage will still work
     }
-  }, [isDarkMode, themeMode]);
+
+    // Apply initial theme
+    applyThemeToIframe(currentTheme, isDarkMode);
+  }, [currentTheme, isDarkMode, applyThemeToIframe]);
 
   // Close color picker when clicking outside
   useEffect(() => {
@@ -258,10 +401,39 @@ export default function ThemeCreator() {
 
   const handleColorChange = (color: any, variable: string) => {
     const hslValue = hexToHsl(color.hex);
-    setCurrentTheme((prev) => ({
-      ...prev,
-      [variable]: hslValue,
-    }));
+
+    if (isDarkMode) {
+      setDarkTheme((prev) => ({ ...prev, [variable]: hslValue }));
+    } else {
+      setLightTheme((prev) => ({ ...prev, [variable]: hslValue }));
+    }
+  };
+
+  // Handle save theme
+  const handleSaveTheme = async () => {
+    const themeOutput: ThemeDataSchema = {};
+
+    if (themeMode === 'light') {
+      // Only light mode
+      themeOutput.rootColors = lightTheme;
+    } else if (themeMode === 'dark') {
+      // Only dark mode
+      themeOutput.darkColors = darkTheme;
+    } else {
+      // Both modes
+      themeOutput.rootColors = lightTheme;
+      themeOutput.darkColors = darkTheme;
+    }
+
+    const themePayload: CreateTheme = {
+      name: themeName.trim(),
+      description: themeDescription.trim(),
+      themeData: themeOutput,
+      isPublic,
+    };
+
+    await createTheme.mutateAsync(themePayload);
+    toast.success('Theme Created Successfully');
   };
 
   const ColorInput = ({ variable, label }: { variable: string; label: string }) => {
@@ -275,11 +447,10 @@ export default function ThemeCreator() {
       if (inputRef.current) {
         const rect = inputRef.current.getBoundingClientRect();
         const viewportHeight = window.innerHeight;
-        const colorPickerHeight = 350; // Approximate height of SketchPicker
+        const colorPickerHeight = 350;
         const spaceBelow = viewportHeight - rect.bottom;
         const spaceAbove = rect.top;
 
-        // Determine if we should position above or below
         const shouldPositionAbove =
           spaceBelow < colorPickerHeight && spaceAbove > colorPickerHeight;
 
@@ -287,25 +458,30 @@ export default function ThemeCreator() {
         let left: number = rect.left + window.scrollX;
 
         if (shouldPositionAbove) {
-          // Position above the element
           top = rect.top + window.scrollY - colorPickerHeight - 5;
         } else {
-          // Position below the element (default)
           top = rect.bottom + window.scrollY + 5;
         }
 
-        // Ensure the picker doesn't go off the right edge of the screen
-        const colorPickerWidth = 225; // Approximate width of SketchPicker
+        const colorPickerWidth = 225;
         const maxLeft = window.innerWidth - colorPickerWidth - 5;
         left = Math.min(left, maxLeft);
-
-        // Ensure the picker doesn't go off the left edge
         left = Math.max(left, 10);
 
         setColorPickerPosition({ top, left });
       }
 
       setActiveColorVar(variable);
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value.trim();
+
+      if (isDarkMode) {
+        setDarkTheme((prev) => ({ ...prev, [variable]: value }));
+      } else {
+        setLightTheme((prev) => ({ ...prev, [variable]: value }));
+      }
     };
 
     return (
@@ -324,10 +500,7 @@ export default function ThemeCreator() {
           </div>
           <Input
             value={currentValue}
-            onChange={(e) => {
-              const value = e.target.value.trim();
-              setCurrentTheme((prev) => ({ ...prev, [variable]: value }));
-            }}
+            onChange={handleInputChange}
             className="flex-1 font-mono text-xs"
             placeholder="HSL value"
           />
@@ -380,6 +553,75 @@ export default function ThemeCreator() {
                   onChange={(e) => setThemeDescription(e.target.value)}
                   placeholder="Describe your theme..."
                 />
+              </div>
+
+              {/* Border Radius Control */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label
+                    htmlFor="radius-slider"
+                    className="flex items-center gap-1.5 text-sm font-medium"
+                  >
+                    <CornerDownRight className="h-4 w-4" />
+                    Border Radius
+                  </Label>
+                  <span className="text-muted-foreground font-mono text-xs">
+                    {currentTheme.radius}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Slider
+                    id="radius-slider"
+                    min={0}
+                    max={2}
+                    step={0.1}
+                    value={[radiusValue]}
+                    onValueChange={(values) => handleRadiusChange(values[0])}
+                    className="flex-1"
+                  />
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                      onClick={() => handleRadiusChange(0)}
+                      title="No radius (square corners)"
+                    >
+                      <span className="sr-only">Square</span>
+                      <div className="h-3 w-3 border border-current" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                      onClick={() => handleRadiusChange(0.5)}
+                      title="Medium radius (default)"
+                    >
+                      <span className="sr-only">Medium radius</span>
+                      <div className="h-3 w-3 rounded-md border border-current" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                      onClick={() => handleRadiusChange(1)}
+                      title="Large radius"
+                    >
+                      <span className="sr-only">Large radius</span>
+                      <div className="h-3 w-3 rounded-lg border border-current" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                      onClick={() => handleRadiusChange(2)}
+                      title="Full radius (pill)"
+                    >
+                      <span className="sr-only">Pill</span>
+                      <div className="h-3 w-3 rounded-full border border-current" />
+                    </Button>
+                  </div>
+                </div>
               </div>
 
               {/* Theme Mode */}
@@ -482,8 +724,8 @@ export default function ThemeCreator() {
             ))}
 
             {/* Export Button */}
-            <Button className="w-full" variant="outline">
-              <Download className="mr-2 h-4 w-4" />
+            <Button className="w-full" variant="outline" onClick={handleSaveTheme}>
+              <SaveIcon className="mr-2 h-4 w-4" />
               Save Theme
             </Button>
           </div>
@@ -493,7 +735,13 @@ export default function ThemeCreator() {
       {/* Right Panel - Preview */}
       <div className="flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto" style={generateThemeStyles(currentTheme)}>
-          <PreviewComponent />
+          <iframe
+            ref={iframeRef}
+            src="/"
+            className="size-full"
+            onLoad={handleIframeLoad}
+            title="Theme Preview"
+          />
         </div>
       </div>
 

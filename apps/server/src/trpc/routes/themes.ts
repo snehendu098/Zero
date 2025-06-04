@@ -26,7 +26,7 @@ export const themesRouter = router({
         .optional(),
     )
     .query(async ({ ctx, input }) => {
-      const themes = await ctx.themeManager.getUserThemes(ctx.session.user.id, input?.connectionId);
+      const themes = await ctx.themeManager.getUserThemes(ctx.sessionUser.id, input?.connectionId);
       return { themes };
     }),
 
@@ -43,7 +43,7 @@ export const themesRouter = router({
 
   // Get single theme by ID
   get: themeProcedure.input(z.object({ themeId: z.string() })).query(async ({ ctx, input }) => {
-    const theme = await ctx.themeManager.getThemeById(input.themeId, ctx.session.user.id);
+    const theme = await ctx.themeManager.getThemeById(input.themeId, ctx.sessionUser.id);
     if (!theme) {
       throw new Error('Theme not found');
     }
@@ -58,14 +58,14 @@ export const themesRouter = router({
     })
     .use(
       createRateLimiterMiddleware({
-        generatePrefix: ({ session }) => `ratelimit:themes-create-${session?.user.id}`,
+        generatePrefix: ({ sessionUser }) => `ratelimit:themes-create-${sessionUser?.id}`,
         limiter: Ratelimit.slidingWindow(10, '1h'), // 10 themes per hour
       }),
     )
     .input(createThemeSchema)
     .mutation(async ({ ctx, input }) => {
       const theme = await ctx.themeManager.createTheme(
-        ctx.session.user.id,
+        ctx.sessionUser.id,
         ctx.activeConnection.id,
         input,
       );
@@ -76,14 +76,14 @@ export const themesRouter = router({
   update: themeProcedure
     .use(
       createRateLimiterMiddleware({
-        generatePrefix: ({ session }) => `ratelimit:themes-update-${session?.user.id}`,
+        generatePrefix: ({ sessionUser }) => `ratelimit:themes-update-${sessionUser?.id}`,
         limiter: Ratelimit.slidingWindow(30, '1h'), // 30 updates per hour
       }),
     )
     .input(updateThemeSchema)
     .mutation(async ({ ctx, input }) => {
       const { id, ...updateData } = input;
-      const theme = await ctx.themeManager.updateTheme(ctx.session.user.id, id, updateData);
+      const theme = await ctx.themeManager.updateTheme(ctx.sessionUser.id, id, updateData);
       return { theme };
     }),
 
@@ -91,13 +91,13 @@ export const themesRouter = router({
   delete: themeProcedure
     .use(
       createRateLimiterMiddleware({
-        generatePrefix: ({ session }) => `ratelimit:themes-delete-${session?.user.id}`,
+        generatePrefix: ({ sessionUser }) => `ratelimit:themes-delete-${sessionUser?.id}`,
         limiter: Ratelimit.slidingWindow(20, '1h'), // 20 deletes per hour
       }),
     )
     .input(z.object({ themeId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const success = await ctx.themeManager.deleteTheme(ctx.session.user.id, input.themeId);
+      const success = await ctx.themeManager.deleteTheme(ctx.sessionUser.id, input.themeId);
       return { success };
     }),
 
@@ -105,13 +105,13 @@ export const themesRouter = router({
   togglePublic: themeProcedure
     .use(
       createRateLimiterMiddleware({
-        generatePrefix: ({ session }) => `ratelimit:themes-toggle-${session?.user.id}`,
+        generatePrefix: ({ sessionUser }) => `ratelimit:themes-toggle-${sessionUser?.id}`,
         limiter: Ratelimit.slidingWindow(20, '1h'),
       }),
     )
     .input(z.object({ themeId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const theme = await ctx.themeManager.togglePublicStatus(ctx.session.user.id, input.themeId);
+      const theme = await ctx.themeManager.togglePublicStatus(ctx.sessionUser.id, input.themeId);
       return { theme };
     }),
 
@@ -165,14 +165,14 @@ export const themesRouter = router({
     })
     .use(
       createRateLimiterMiddleware({
-        generatePrefix: ({ session }) => `ratelimit:themes-copy-${session?.user.id}`,
+        generatePrefix: ({ sessionUser }) => `ratelimit:themes-copy-${sessionUser?.id}`,
         limiter: Ratelimit.slidingWindow(10, '1h'), // 10 copies per hour
       }),
     )
     .input(z.object({ publicThemeId: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const theme = await ctx.themeManager.copyPublicTheme(
-        ctx.session.user.id,
+        ctx.sessionUser.id,
         ctx.activeConnection.id,
         input.publicThemeId,
       );

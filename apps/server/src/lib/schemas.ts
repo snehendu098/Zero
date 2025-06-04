@@ -1,5 +1,17 @@
 import { z } from 'zod';
 
+export type Theme = {
+  id: string;
+  userId: string;
+  connectionId: string | null;
+  name: string;
+  description: string | null;
+  themeData: ThemeData;
+  isPublic: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export const serializedFileSchema = z.object({
   name: z.string(),
   type: z.string(),
@@ -110,18 +122,8 @@ export const updateThemeSchema = createThemeSchema.partial().extend({
   id: z.string(),
 });
 
-export type Theme = {
-  id: string;
-  userId: string;
-  connectionId: string | null;
-  name: string;
-  description: string | null;
-  themeData: ThemeData;
-  isPublic: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
 export type ThemeData = z.infer<typeof themeDataSchema>;
 export type CreateTheme = z.infer<typeof createThemeSchema>;
 export type UpdateTheme = z.infer<typeof updateThemeSchema>;
+export type ThemeColorSchema = z.infer<typeof themeColorsSchema>;
+export type ThemeDataSchema = z.infer<typeof themeDataSchema>;

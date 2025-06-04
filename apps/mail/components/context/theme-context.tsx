@@ -143,49 +143,6 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
     // applyTheme(defaultTheme);
   };
 
-  // Helper function to convert hex to HSL
-  function hexToHsl(hex: string): string {
-    // Remove the # if present
-    hex = hex.replace(/^#/, '');
-
-    // Parse the hex values
-    const r = Number.parseInt(hex.substring(0, 2), 16) / 255;
-    const g = Number.parseInt(hex.substring(2, 4), 16) / 255;
-    const b = Number.parseInt(hex.substring(4, 6), 16) / 255;
-
-    // Find the min and max values to calculate the lightness
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    let h = 0;
-    let s = 0;
-    let l = (max + min) / 2;
-
-    if (max !== min) {
-      const d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-      switch (max) {
-        case r:
-          h = (g - b) / d + (g < b ? 6 : 0);
-          break;
-        case g:
-          h = (b - r) / d + 2;
-          break;
-        case b:
-          h = (r - g) / d + 4;
-          break;
-      }
-      h = h * 60;
-    }
-
-    // Round to 3 decimal places
-    h = Math.round(h * 1000) / 1000;
-    s = Math.round(s * 1000) / 10; // Convert to percentage
-    l = Math.round(l * 1000) / 10; // Convert to percentage
-
-    return `${h} ${s}% ${l}%`;
-  }
-
   const applyTheme = (themeParams: ThemeData) => {
     console.log('APPLY THEME', themeParams);
 
@@ -198,36 +155,36 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
     console.log('📝 Applying theme:', { id, variant });
 
     // 1. Remove any existing theme styles
-    const existingStyle = document.getElementById('dynamic-theme-style');
-    if (existingStyle) {
-      console.log('🗑️ Removing existing custom styles');
-      existingStyle.remove();
-    } else {
-      console.log('ℹ️ No existing custom styles found');
-    }
+    // const existingStyle = document.getElementById('dynamic-theme-style');
+    // if (existingStyle) {
+    //   console.log('🗑️ Removing existing custom styles');
+    //   existingStyle.remove();
+    // } else {
+    //   console.log('ℹ️ No existing custom styles found');
+    // }
 
-    // 2. Setting dark mode or light mode
-    if (variant === 'dark') {
-      console.log('🌙 Setting dark mode');
-      document.documentElement.classList.add('dark');
-    } else {
-      console.log('☀️ Setting light mode');
-      document.documentElement.classList.remove('dark');
-    }
+    // // 2. Setting dark mode or light mode
+    // if (variant === 'dark') {
+    //   console.log('🌙 Setting dark mode');
+    //   document.documentElement.classList.add('dark');
+    // } else {
+    //   console.log('☀️ Setting light mode');
+    //   document.documentElement.classList.remove('dark');
+    // }
 
-    // 3. Create new style element and set styles
-    const style = document.createElement('style');
-    style.id = 'dynamic-theme-style';
-    style.innerHTML = themeParams.css;
+    // // 3. Create new style element and set styles
+    // const style = document.createElement('style');
+    // style.id = 'dynamic-theme-style';
+    // style.innerHTML = themeParams.css;
 
-    document.head.appendChild(style);
-    console.log('✅ Dynamic theme CSS applied');
+    // document.head.appendChild(style);
+    // console.log('✅ Dynamic theme CSS applied');
 
-    // 4. Update state and localStorage
-    setActiveTheme(`${id}-${variant}` as ThemeOption);
-    localStorage.setItem('selected-theme', JSON.stringify(themeParams));
-    localStorage.removeItem('default');
-    console.log('💾 Updated active theme and localStorage');
+    // // 4. Update state and localStorage
+    // setActiveTheme(`${id}-${variant}` as ThemeOption);
+    // localStorage.setItem('selected-theme', JSON.stringify(themeParams));
+    // localStorage.removeItem('default');
+    // console.log('💾 Updated active theme and localStorage');
   };
 
   const removeTheme = () => {
