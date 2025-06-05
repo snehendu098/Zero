@@ -120,7 +120,7 @@ const colorGroups = [
 ];
 
 // Convert HSL to hex for color input
-function hslToHex(hsl: string): string {
+export function hslToHex(hsl: string): string {
   try {
     const [h, s, l] = hsl.split(' ').map((v) => {
       const num = Number.parseFloat(v.replace('%', ''));

@@ -3,68 +3,68 @@ import type { Theme, ThemeColorSchema } from '@zero/server/schemas';
 
 // Light theme values
 const defaultLight = {
-  radius: "0.5rem",
-  background: "0 0% 100%",
-  foreground: "240 10% 3.9%",
-  card: "0 0% 100%",
-  "card-foreground": "240 10% 3.9%",
-  popover: "0 0% 100%",
-  "popover-foreground": "240 10% 3.9%",
-  primary: "240 5.9% 10%",
-  "primary-foreground": "0 0% 98%",
-  secondary: "240 4.8% 95.9%",
-  "secondary-foreground": "240 5.9% 10%",
-  muted: "240 4.8% 95.9%",
-  "muted-foreground": "240 3.8% 46.1%",
-  accent: "240 4.8% 95.9%",
-  "accent-foreground": "240 5.9% 10%",
-  destructive: "0 84.2% 60.2%",
-  "destructive-foreground": "0 0% 98%",
-  border: "240 5.9% 90%",
-  input: "240 5.9% 90%",
-  ring: "240 10% 3.9%",
-  sidebar: "0 0% 98%",
-  "sidebar-foreground": "240 5.3% 26.1%",
-  "sidebar-primary": "240 5.9% 10%",
-  "sidebar-primary-foreground": "0 0% 98%",
-  "sidebar-accent": "240 4.8% 95.9%",
-  "sidebar-accent-foreground": "240 5.9% 10%",
-  "sidebar-border": "220 13% 91%",
-  "sidebar-ring": "217.2 91.2% 59.8%",
-  "icon-color": "black"
+  radius: '0.5rem',
+  background: '0 0% 100%',
+  foreground: '240 10% 3.9%',
+  card: '0 0% 100%',
+  'card-foreground': '240 10% 3.9%',
+  popover: '0 0% 100%',
+  'popover-foreground': '240 10% 3.9%',
+  primary: '240 5.9% 10%',
+  'primary-foreground': '0 0% 98%',
+  secondary: '240 4.8% 95.9%',
+  'secondary-foreground': '240 5.9% 10%',
+  muted: '240 4.8% 95.9%',
+  'muted-foreground': '240 3.8% 46.1%',
+  accent: '240 4.8% 95.9%',
+  'accent-foreground': '240 5.9% 10%',
+  destructive: '0 84.2% 60.2%',
+  'destructive-foreground': '0 0% 98%',
+  border: '240 5.9% 90%',
+  input: '240 5.9% 90%',
+  ring: '240 10% 3.9%',
+  sidebar: '0 0% 98%',
+  'sidebar-foreground': '240 5.3% 26.1%',
+  'sidebar-primary': '240 5.9% 10%',
+  'sidebar-primary-foreground': '0 0% 98%',
+  'sidebar-accent': '240 4.8% 95.9%',
+  'sidebar-accent-foreground': '240 5.9% 10%',
+  'sidebar-border': '220 13% 91%',
+  'sidebar-ring': '217.2 91.2% 59.8%',
+  'icon-color': 'black',
 };
 
 // Dark theme values
 const defaultDark = {
-  radius: "0.5rem", // Same as light theme
-  background: "0, 0%, 10%", // Note: there's a comma instead of space in original
-  foreground: "0 0% 98%",
-  card: "240 5.9% 10%",
-  "card-foreground": "0 0% 98%",
-  popover: "240 3.4% 8%",
-  "popover-foreground": "0 0% 99%",
-  primary: "0 0% 98%",
-  "primary-foreground": "240 5.9% 10%",
-  secondary: "240 3.7% 15.9%",
-  "secondary-foreground": "0 0% 98%",
-  muted: "240 3.7% 15.9%",
-  "muted-foreground": "240 5% 64.9%",
-  accent: "240 3.7% 15.9%",
-  "accent-foreground": "0 0% 98%",
-  destructive: "0 62.8% 30.6%",
-  "destructive-foreground": "0 0% 98%",
-  border: "240 3.7% 20%",
-  input: "240 3.7% 15.9%",
-  ring: "240 4.9% 83.9%",
-  sidebar: "240 3.9% 7%",
-  "sidebar-foreground": "240 4.8% 96.9%",
-  "sidebar-primary": "224.3 76.3% 48%",
-  "sidebar-primary-foreground": "0 0% 100%",
-  "sidebar-accent": "240 3.7% 15.9%",
-  "sidebar-accent-foreground": "240 4.8% 95.9%",
-  "sidebar-border": "240 3.7% 15.9%",
-  "sidebar-ring": "217.2 91.2% 59.8%",
-  "icon-color": "currentColor"
+  radius: '0.5rem', // Same as light theme
+  background: '0, 0%, 10%', // Note: there's a comma instead of space in original
+  foreground: '0 0% 98%',
+  card: '240 5.9% 10%',
+  'card-foreground': '0 0% 98%',
+  popover: '240 3.4% 8%',
+  'popover-foreground': '0 0% 99%',
+  primary: '0 0% 98%',
+  'primary-foreground': '240 5.9% 10%',
+  secondary: '240 3.7% 15.9%',
+  'secondary-foreground': '0 0% 98%',
+  muted: '240 3.7% 15.9%',
+  'muted-foreground': '240 5% 64.9%',
+  accent: '240 3.7% 15.9%',
+  'accent-foreground': '0 0% 98%',
+  destructive: '0 62.8% 30.6%',
+  'destructive-foreground': '0 0% 98%',
+  border: '240 3.7% 20%',
+  input: '240 3.7% 15.9%',
+  ring: '240 4.9% 83.9%',
+  sidebar: '240 3.9% 7%',
+  'sidebar-foreground': '240 4.8% 96.9%',
+  'sidebar-primary': '224.3 76.3% 48%',
+  'sidebar-primary-foreground': '0 0% 100%',
+  'sidebar-accent': '240 3.7% 15.9%',
+  'sidebar-accent-foreground': '240 4.8% 95.9%',
+  'sidebar-border': '240 3.7% 15.9%',
+  'sidebar-ring': '217.2 91.2% 59.8%',
+  'icon-color': 'currentColor',
 };
 
 // Utility function to parse CSS variables and extract theme colors
@@ -197,7 +197,6 @@ export function hslToHex(hslString: string): string {
 
 // HEX to HSL
 export function hexToHsl(hex: string): string {
-
   // Remove the # if present
   hex = hex.replace(/^#/, '');
 
@@ -316,38 +315,46 @@ export function hasDarkMode(themeCss: string): boolean {
   return /\.dark\s*{/.test(themeCss);
 }
 
+export function hasLightMode(themeCss: string): boolean {
+  return /:root\s*{/.test(themeCss);
+}
+
 // Generate CSS from theme colors
-export function generateThemeCss(lightColors?: ThemeColorSchema, darkColors?: ThemeColorSchema): string {
-  const lightCss = lightColors ? `
+export function generateThemeCss(
+  lightColors?: ThemeColorSchema,
+  darkColors?: ThemeColorSchema,
+): string {
+  const lightCss = lightColors
+    ? `
     :root {
       --radius: ${lightColors.radius || '0.5rem'};
       --background: ${lightColors.background ? hexToHsl(lightColors.background) : defaultLight.background};
       --foreground: ${lightColors.foreground ? hexToHsl(lightColors.foreground) : defaultLight.foreground};
       --card: ${lightColors.card ? hexToHsl(lightColors.card) : defaultLight.card};
-      --card-foreground: ${lightColors['card-foreground'] ? hexToHsl(lightColors['card-foreground']) : defaultLight["card-foreground"]};
+      --card-foreground: ${lightColors['card-foreground'] ? hexToHsl(lightColors['card-foreground']) : defaultLight['card-foreground']};
       --popover: ${lightColors.background ? hexToHsl(lightColors.background) : defaultLight.popover};
-      --popover-foreground: ${lightColors.foreground ? hexToHsl(lightColors.foreground) : defaultLight["popover-foreground"]};
+      --popover-foreground: ${lightColors.foreground ? hexToHsl(lightColors.foreground) : defaultLight['popover-foreground']};
       --primary: ${lightColors.primary ? hexToHsl(lightColors.primary) : defaultLight.primary};
-      --primary-foreground: ${lightColors.primary ? hexToHsl(invertColor(lightColors.primary)) : defaultLight["primary-foreground"]};
+      --primary-foreground: ${lightColors.primary ? hexToHsl(invertColor(lightColors.primary)) : defaultLight['primary-foreground']};
       --secondary: ${lightColors.secondary ? hexToHsl(lightColors.secondary) : defaultLight.secondary};
-      --secondary-foreground: ${lightColors.secondary ? hexToHsl(invertColor(lightColors.secondary)) : defaultLight["secondary-foreground"]};
+      --secondary-foreground: ${lightColors.secondary ? hexToHsl(invertColor(lightColors.secondary)) : defaultLight['secondary-foreground']};
       --muted: ${lightColors.muted ? hexToHsl(lightColors.muted) : defaultLight.muted};
-      --muted-foreground: ${lightColors.muted ? hexToHsl(invertColor(lightColors.muted, 0.7)) : defaultLight["muted-foreground"]};
+      --muted-foreground: ${lightColors.muted ? hexToHsl(invertColor(lightColors.muted, 0.7)) : defaultLight['muted-foreground']};
       --accent: ${lightColors.accent ? hexToHsl(lightColors.accent) : defaultLight.accent};
-      --accent-foreground: ${lightColors.accent ? hexToHsl(invertColor(lightColors.accent)) : defaultLight["accent-foreground"]};
+      --accent-foreground: ${lightColors.accent ? hexToHsl(invertColor(lightColors.accent)) : defaultLight['accent-foreground']};
       --destructive: 0 84.2% 60.2%;
       --destructive-foreground: 0 0% 98%;
       --border: ${lightColors.border ? hexToHsl(lightColors.border) : defaultLight.border};
       --input: ${lightColors.border ? hexToHsl(lightColors.border) : defaultLight.input};
       --ring: ${lightColors.ring ? hexToHsl(lightColors.ring) : defaultLight.ring};
       --sidebar: ${lightColors.sidebar ? hexToHsl(lightColors.sidebar) : defaultLight.sidebar};
-      --sidebar-foreground: ${lightColors['sidebar-foreground'] ? hexToHsl(lightColors['sidebar-foreground']) : defaultLight["sidebar-foreground"]};
-      --sidebar-primary: ${lightColors.primary ? hexToHsl(lightColors.primary) : defaultLight["sidebar-primary"]};
-      --sidebar-primary-foreground: ${lightColors.primary ? hexToHsl(invertColor(lightColors.primary)) : defaultLight["sidebar-primary-foreground"]};
-      --sidebar-accent: ${lightColors['sidebar-accent'] ? hexToHsl(lightColors['sidebar-accent']) : defaultLight["sidebar-accent"]};
-      --sidebar-accent-foreground: ${lightColors['sidebar-accent-foreground'] ? hexToHsl(lightColors['sidebar-accent-foreground']) : defaultLight["sidebar-accent-foreground"]};
-      --sidebar-border: ${lightColors.border ? hexToHsl(lightColors.border) : defaultLight["sidebar-border"]};
-      --sidebar-ring: ${lightColors.ring ? hexToHsl(lightColors.ring) : defaultLight["sidebar-ring"]};
+      --sidebar-foreground: ${lightColors['sidebar-foreground'] ? hexToHsl(lightColors['sidebar-foreground']) : defaultLight['sidebar-foreground']};
+      --sidebar-primary: ${lightColors.primary ? hexToHsl(lightColors.primary) : defaultLight['sidebar-primary']};
+      --sidebar-primary-foreground: ${lightColors.primary ? hexToHsl(invertColor(lightColors.primary)) : defaultLight['sidebar-primary-foreground']};
+      --sidebar-accent: ${lightColors['sidebar-accent'] ? hexToHsl(lightColors['sidebar-accent']) : defaultLight['sidebar-accent']};
+      --sidebar-accent-foreground: ${lightColors['sidebar-accent-foreground'] ? hexToHsl(lightColors['sidebar-accent-foreground']) : defaultLight['sidebar-accent-foreground']};
+      --sidebar-border: ${lightColors.border ? hexToHsl(lightColors.border) : defaultLight['sidebar-border']};
+      --sidebar-ring: ${lightColors.ring ? hexToHsl(lightColors.ring) : defaultLight['sidebar-ring']};
       --icon-color: ${lightColors.primary ? lightColors.primary : 'black'};
       
       --shadow-color: hsl(0 0% 0% / 0.1);
@@ -360,7 +367,8 @@ export function generateThemeCss(lightColors?: ThemeColorSchema, darkColors?: Th
       --shadow-xl: 0 1px 3px 0px rgb(from var(--shadow-color) r g b / 0.1), 0 8px 10px -1px rgb(from var(--shadow-color) r g b / 0.1);
       --shadow-2xl: 0 1px 3px 0px rgb(from var(--shadow-color) r g b / 0.1);
     }
-    ` : '';
+    `
+    : '';
 
   // Only add dark mode if provided
   const darkCss = darkColors
@@ -370,30 +378,30 @@ export function generateThemeCss(lightColors?: ThemeColorSchema, darkColors?: Th
   --background: ${darkColors.background ? hexToHsl(darkColors.background) : defaultDark.background};
   --foreground: ${darkColors.foreground ? hexToHsl(darkColors.foreground) : defaultDark.foreground};
   --card: ${darkColors.card ? hexToHsl(darkColors.card) : defaultDark.card};
-  --card-foreground: ${darkColors['card-foreground'] ? hexToHsl(darkColors['card-foreground']) : defaultDark["card-foreground"]};
+  --card-foreground: ${darkColors['card-foreground'] ? hexToHsl(darkColors['card-foreground']) : defaultDark['card-foreground']};
   --popover: ${darkColors.background ? hexToHsl(darkColors.background) : defaultDark.popover};
-  --popover-foreground: ${darkColors.foreground ? hexToHsl(darkColors.foreground) : defaultDark["popover-foreground"]};
+  --popover-foreground: ${darkColors.foreground ? hexToHsl(darkColors.foreground) : defaultDark['popover-foreground']};
   --primary: ${darkColors.primary ? hexToHsl(darkColors.primary) : defaultDark.primary};
-  --primary-foreground: ${darkColors.primary ? hexToHsl(invertColor(darkColors.primary)) : defaultDark["primary-foreground"]};
+  --primary-foreground: ${darkColors.primary ? hexToHsl(invertColor(darkColors.primary)) : defaultDark['primary-foreground']};
   --secondary: ${darkColors.secondary ? hexToHsl(darkColors.secondary) : defaultDark.secondary};
-  --secondary-foreground: ${darkColors.secondary ? hexToHsl(invertColor(darkColors.secondary)) : defaultDark["secondary-foreground"]};
+  --secondary-foreground: ${darkColors.secondary ? hexToHsl(invertColor(darkColors.secondary)) : defaultDark['secondary-foreground']};
   --muted: ${darkColors.muted ? hexToHsl(darkColors.muted) : defaultDark.muted};
-  --muted-foreground: ${darkColors.muted ? hexToHsl(invertColor(darkColors.muted, 0.7)) : defaultDark["muted-foreground"]};
+  --muted-foreground: ${darkColors.muted ? hexToHsl(invertColor(darkColors.muted, 0.7)) : defaultDark['muted-foreground']};
   --accent: ${darkColors.accent ? hexToHsl(darkColors.accent) : defaultDark.accent};
-  --accent-foreground: ${darkColors.accent ? hexToHsl(invertColor(darkColors.accent)) : defaultDark["accent-foreground"]};
+  --accent-foreground: ${darkColors.accent ? hexToHsl(invertColor(darkColors.accent)) : defaultDark['accent-foreground']};
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 0 0% 98%;
   --border: ${darkColors.border ? hexToHsl(darkColors.border) : defaultDark.border};
   --input: ${darkColors.border ? hexToHsl(darkColors.border) : defaultDark.input};
   --ring: ${darkColors.ring ? hexToHsl(darkColors.ring) : defaultDark.ring};
   --sidebar: ${darkColors.sidebar ? hexToHsl(darkColors.sidebar) : defaultDark.sidebar};
-  --sidebar-foreground: ${darkColors['sidebar-foreground'] ? hexToHsl(darkColors['sidebar-foreground']) : defaultDark["sidebar-foreground"]};
-  --sidebar-primary: ${darkColors.primary ? hexToHsl(darkColors.primary) : defaultDark["sidebar-primary"]};
-  --sidebar-primary-foreground: ${darkColors.primary ? hexToHsl(invertColor(darkColors.primary)) : defaultDark["sidebar-primary-foreground"]};
-  --sidebar-accent: ${darkColors['sidebar-accent'] ? hexToHsl(darkColors['sidebar-accent']) : defaultDark["sidebar-accent"]};
-  --sidebar-accent-foreground: ${darkColors['sidebar-accent-foreground'] ? hexToHsl(darkColors['sidebar-accent-foreground']) : defaultDark["sidebar-accent-foreground"]};
-  --sidebar-border: ${darkColors.border ? hexToHsl(darkColors.border) : defaultDark["sidebar-border"]};
-  --sidebar-ring: ${darkColors.ring ? hexToHsl(darkColors.ring) : defaultDark["sidebar-ring"]};
+  --sidebar-foreground: ${darkColors['sidebar-foreground'] ? hexToHsl(darkColors['sidebar-foreground']) : defaultDark['sidebar-foreground']};
+  --sidebar-primary: ${darkColors.primary ? hexToHsl(darkColors.primary) : defaultDark['sidebar-primary']};
+  --sidebar-primary-foreground: ${darkColors.primary ? hexToHsl(invertColor(darkColors.primary)) : defaultDark['sidebar-primary-foreground']};
+  --sidebar-accent: ${darkColors['sidebar-accent'] ? hexToHsl(darkColors['sidebar-accent']) : defaultDark['sidebar-accent']};
+  --sidebar-accent-foreground: ${darkColors['sidebar-accent-foreground'] ? hexToHsl(darkColors['sidebar-accent-foreground']) : defaultDark['sidebar-accent-foreground']};
+  --sidebar-border: ${darkColors.border ? hexToHsl(darkColors.border) : defaultDark['sidebar-border']};
+  --sidebar-ring: ${darkColors.ring ? hexToHsl(darkColors.ring) : defaultDark['sidebar-ring']};
   --icon-color: ${darkColors.primary ? darkColors.primary : 'currentColor'};
   
   --shadow-color: hsl(0 0% 0% / 0.2);
@@ -426,11 +434,15 @@ function invertColor(hex: string, opacity = 1): string {
 // Generate theme data from API response format
 export function generateThemeData(apiThemes: ApiThemeResponse[]): ThemeData[] {
   return apiThemes.flatMap((theme) => {
-    const lightColors = extractThemeColors(theme.css);
+    const supportsLightMode = hasLightMode(theme.css);
     const supportsDarkMode = hasDarkMode(theme.css);
 
-    const themes: ThemeData[] = [
-      {
+    const themes: ThemeData[] = [];
+
+    if (supportsLightMode) {
+      const lightColors = extractThemeColors(theme.css);
+
+      themes.push({
         id: `${theme.id.toLowerCase()}-light`,
         name: theme.name.toLowerCase(),
         variant: 'light',
@@ -438,8 +450,8 @@ export function generateThemeData(apiThemes: ApiThemeResponse[]): ThemeData[] {
         colors: lightColors,
         css: theme.css,
         themeId: theme.id,
-      },
-    ];
+      });
+    }
 
     if (supportsDarkMode) {
       const darkColors = extractDarkThemeColors(theme.css);
@@ -526,7 +538,6 @@ export function deleteCustomTheme(themeId: string): void {
 }
 
 export function parseTheme({ themes }: { themes: Theme[] }): ThemeData[] {
-
   const apiResponse: ApiThemeResponse[] = themes.map((item) => {
     return {
       id: item.id,

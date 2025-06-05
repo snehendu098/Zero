@@ -8,13 +8,14 @@ import {
 } from '@/components/ui/card';
 import { generateCustomThemeData, parseTheme } from '@/lib/themes/theme-utils';
 import { useCurrentTheme } from '@/components/context/theme-context';
+import ThemeCreator, { hslToHex } from './theme-customizer';
 import { Check, Moon, Plus, Sun, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { ThemeData, ThemeOption } from '@/types';
 import { Button } from '@/components/ui/button';
 import { useThemes } from '@/hooks/use-themes';
-import ThemeCreator from './theme-customizer';
 import { defaultThemes } from '@/lib/themes';
+import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
 const dialogVariants = {
@@ -71,9 +72,11 @@ export default function ThemesPage() {
   console.log(isLoading, userThemesData, isError);
 
   const handleThemeClick = (themeParams: ThemeData) => {
+    console.log(themeParams);
     console.log('🖱️ Theme clicked:', themeParams.name, 'Currently selected:', selectedTheme);
     console.log('✨ Applying new theme');
-    applyTheme(themeParams);
+
+    // applyTheme(themeParams);
   };
 
   const handleDefaultThemeClick = (theme: (typeof defaultThemes)[0]) => {
@@ -338,71 +341,138 @@ export default function ThemesPage() {
             <section>
               <div className="mb-6 flex items-center justify-between">
                 <div>
-                  <h3 className="text-2xl font-semibold">Created Themes</h3>
-                  <p className="text-muted-foreground">Your Created Themes</p>
+                  <h3 className="text-2xl font-semibold">Themes</h3>
+                  <p className="text-muted-foreground">
+                    Customize how you want your interface should look
+                  </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-                {parseTheme(userThemesData).map((theme, index) => {
-                  const isSelected = selectedTheme === `${theme.id}-${theme.variant}`;
+                {/* themes */}
+                {userThemesData.themes.map((item, idx) => {
+                  const { rootColors, darkColors } = item.themeData;
 
                   return (
-                    <div key={theme.id} className="contents">
-                      <Card
-                        className={`cursor-pointer overflow-hidden transition-all duration-200 hover:scale-105 hover:shadow-lg ${
-                          isSelected ? 'ring-primary shadow-lg ring-2' : ''
-                        }`}
-                        onClick={() => {
-                          if (isSelected) revertToDefault();
-                          else handleThemeClick(theme);
-                        }}
-                      >
-                        <div
-                          className="relative flex h-32 items-center justify-center"
-                          style={{
-                            backgroundColor:
-                              theme.variant === 'dark' ? '#1F2937' : theme.colors.primary,
-                            color: theme.variant === 'dark' ? theme.colors.primary : '#ffffff',
-                          }}
+                    <>
+                      {item.themeData['darkColors'] && (
+                        <Card
+                          onClick={() =>
+                            console.log(
+                              item.themeData['darkColors']?.background &&
+                                hslToHex(item.themeData['darkColors'].background),
+                              item.themeData['darkColors']?.background,
+                            )
+                          }
+                          className="relative"
                         >
-                          {theme.variant === 'dark' ? (
-                            <Moon className="h-12 w-12" />
-                          ) : (
-                            <Sun className="h-12 w-12" />
-                          )}
-                          {isSelected && (
-                            <div className="absolute right-2 top-2 rounded-full bg-white/20 p-1">
-                              <Check className="h-4 w-4 text-white" />
+                          <CardHeader>
+                            <CardTitle>{item.name}</CardTitle>
+                            <CardDescription>{item.description}</CardDescription>
+                            <div className="absolute bottom-2 right-2 rounded-full border px-2 text-xs font-semibold">
+                              Dark
                             </div>
-                          )}
-                        </div>
-                        <CardHeader className="pb-2">
-                          <CardTitle className="text-lg capitalize">
-                            {theme.name} {theme.variant}
-                          </CardTitle>
-                        </CardHeader>
-                        <CardFooter className="pt-0">
-                          <div className="flex w-full items-center justify-between">
-                            <div className="flex gap-1">
-                              {Object.values(theme.colors)
-                                .slice(0, 3)
-                                .map((color, colorIndex) => (
-                                  <div
-                                    key={colorIndex}
-                                    className="h-3 w-3 rounded-full border border-gray-200"
-                                    style={{ backgroundColor: color as any }}
-                                  />
-                                ))}
-                            </div>
-                            {isSelected && <Check className="text-primary h-4 w-4" />}
-                          </div>
-                        </CardFooter>
-                      </Card>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="flex items-center space-x-2">
+                              <div
+                                className={cn('rounded-full border p-4')}
+                                style={{
+                                  backgroundColor: item.themeData['darkColors'].background
+                                    ? hslToHex(item.themeData['darkColors'].background)
+                                    : '#ffffff',
+                                }}
+                              ></div>
 
-                      {/* Show preview after this theme if it should be shown */}
-                      {shouldShowPreviewAfter(index, userThemes) && renderPreviewPanel()}
-                    </div>
+                              <div
+                                className={cn('rounded-full border p-4')}
+                                style={{
+                                  backgroundColor: item.themeData['darkColors'].sidebar
+                                    ? hslToHex(item.themeData['darkColors'].sidebar)
+                                    : '#ffffff',
+                                }}
+                              ></div>
+
+                              <div
+                                className={cn('rounded-full border p-4')}
+                                style={{
+                                  backgroundColor: item.themeData['darkColors'].primary
+                                    ? hslToHex(item.themeData['darkColors'].primary)
+                                    : '#ffffff',
+                                }}
+                              ></div>
+                              <div
+                                className={cn('rounded-full border p-4')}
+                                style={{
+                                  backgroundColor: item.themeData['darkColors'].accent
+                                    ? hslToHex(item.themeData['darkColors'].accent)
+                                    : '#ffffff',
+                                }}
+                              ></div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {item.themeData['rootColors'] && (
+                        <Card
+                          onClick={() =>
+                            console.log(
+                              item.themeData['rootColors']?.background &&
+                                hslToHex(item.themeData['rootColors'].background),
+                              item.themeData['rootColors']?.background,
+                            )
+                          }
+                          className="relative"
+                        >
+                          <CardHeader>
+                            <CardTitle>{item.name}</CardTitle>
+                            <CardDescription>{item.description}</CardDescription>
+                            <div className="absolute bottom-2 right-2 rounded-full border px-2 text-xs font-semibold">
+                              Light
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className="flex items-center space-x-2">
+                              <div
+                                className={cn('rounded-full border p-4')}
+                                style={{
+                                  backgroundColor: item.themeData['rootColors'].background
+                                    ? hslToHex(item.themeData['rootColors'].background)
+                                    : '#ffffff',
+                                }}
+                              ></div>
+
+                              <div
+                                className={cn('rounded-full border p-4')}
+                                style={{
+                                  backgroundColor: item.themeData['rootColors'].sidebar
+                                    ? hslToHex(item.themeData['rootColors'].sidebar)
+                                    : '#ffffff',
+                                }}
+                              ></div>
+
+                              <div
+                                className={cn('rounded-full border p-4')}
+                                style={{
+                                  backgroundColor: item.themeData['rootColors'].primary
+                                    ? hslToHex(item.themeData['rootColors'].primary)
+                                    : '#ffffff',
+                                }}
+                              ></div>
+                              <div
+                                className={cn('rounded-full border p-4')}
+                                style={{
+                                  backgroundColor: item.themeData['rootColors'].accent
+                                    ? hslToHex(item.themeData['rootColors'].accent)
+                                    : '#ffffff',
+                                }}
+                              ></div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </>
                   );
                 })}
               </div>

@@ -155,36 +155,36 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
     console.log('📝 Applying theme:', { id, variant });
 
     // 1. Remove any existing theme styles
-    // const existingStyle = document.getElementById('dynamic-theme-style');
-    // if (existingStyle) {
-    //   console.log('🗑️ Removing existing custom styles');
-    //   existingStyle.remove();
-    // } else {
-    //   console.log('ℹ️ No existing custom styles found');
-    // }
+    const existingStyle = document.getElementById('dynamic-theme-style');
+    if (existingStyle) {
+      console.log('🗑️ Removing existing custom styles');
+      existingStyle.remove();
+    } else {
+      console.log('ℹ️ No existing custom styles found');
+    }
 
-    // // 2. Setting dark mode or light mode
-    // if (variant === 'dark') {
-    //   console.log('🌙 Setting dark mode');
-    //   document.documentElement.classList.add('dark');
-    // } else {
-    //   console.log('☀️ Setting light mode');
-    //   document.documentElement.classList.remove('dark');
-    // }
+    // 2. Setting dark mode or light mode
+    if (variant === 'dark') {
+      console.log('🌙 Setting dark mode');
+      document.documentElement.classList.add('dark');
+    } else {
+      console.log('☀️ Setting light mode');
+      document.documentElement.classList.remove('dark');
+    }
 
-    // // 3. Create new style element and set styles
-    // const style = document.createElement('style');
-    // style.id = 'dynamic-theme-style';
-    // style.innerHTML = themeParams.css;
+    // 3. Create new style element and set styles
+    const style = document.createElement('style');
+    style.id = 'dynamic-theme-style';
+    style.innerHTML = themeParams.css;
 
-    // document.head.appendChild(style);
-    // console.log('✅ Dynamic theme CSS applied');
+    document.head.appendChild(style);
+    console.log('✅ Dynamic theme CSS applied');
 
-    // // 4. Update state and localStorage
-    // setActiveTheme(`${id}-${variant}` as ThemeOption);
-    // localStorage.setItem('selected-theme', JSON.stringify(themeParams));
-    // localStorage.removeItem('default');
-    // console.log('💾 Updated active theme and localStorage');
+    // 4. Update state and localStorage
+    setActiveTheme(`${id}-${variant}` as ThemeOption);
+    localStorage.setItem('selected-theme', JSON.stringify(themeParams));
+    localStorage.removeItem('default');
+    console.log('💾 Updated active theme and localStorage');
   };
 
   const removeTheme = () => {
