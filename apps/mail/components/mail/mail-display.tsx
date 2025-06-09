@@ -45,8 +45,8 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { memo, useEffect, useMemo, useState, useRef, useCallback, useLayoutEffect } from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import type { Sender, ParsedMessage, Attachment } from '@/types';
 import { useActiveConnection } from '@/hooks/use-connections';
@@ -75,7 +75,6 @@ import { format, set } from 'date-fns';
 import { Button } from '../ui/button';
 import { useQueryState } from 'nuqs';
 import { Badge } from '../ui/badge';
-import JSZip from 'jszip';
 
 function TextSelectionPopover({
   children,
@@ -542,9 +541,11 @@ const downloadAttachment = (attachment: { body: string; mimeType: string; filena
 };
 
 const handleDownloadAllAttachments =
-  (subject: string, attachments: { body: string; mimeType: string; filename: string }[]) => () => {
+  (subject: string, attachments: { body: string; mimeType: string; filename: string }[]) =>
+  async () => {
     if (!attachments.length) return;
 
+    const JSZip = (await import('jszip')).default;
     const zip = new JSZip();
 
     console.log('attachments', attachments);
@@ -1180,7 +1181,7 @@ const MailDisplay = ({ emailData, index, totalEmails, demo, threadAttachments }:
                 
                 <div class="meta-row">
                   <span class="meta-label">Date:</span>
-                  <span class="meta-value">${format(new Date(emailData.receivedOn), 'PPpp')}</span>
+                  <span class="meta-value">${formatDate(emailData.receivedOn)}</span>
                 </div>
               </div>
             </div>
@@ -1512,7 +1513,10 @@ const MailDisplay = ({ emailData, index, totalEmails, demo, threadAttachments }:
                                     {t('common.mailDisplay.date')}:
                                   </span>
                                   <span className="text-muted-foreground ml-3">
-                                    {format(new Date(emailData?.receivedOn), 'PPpp')}
+                                    {emailData?.receivedOn &&
+                                    !isNaN(new Date(emailData.receivedOn).getTime())
+                                      ? format(new Date(emailData.receivedOn), 'PPpp')
+                                      : ''}
                                   </span>
                                 </div>
                                 <div className="flex">

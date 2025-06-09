@@ -1,5 +1,6 @@
 import { HotkeyProviderWrapper } from '@/components/providers/hotkey-provider-wrapper';
 import { OnboardingWrapper } from '@/components/onboarding';
+import { VoiceProvider } from '@/providers/voice-provider';
 import { NotificationProvider } from '@/components/party';
 import { AppSidebar } from '@/components/ui/app-sidebar';
 import { Outlet, useLoaderData } from 'react-router';
@@ -14,6 +15,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function MailLayout() {
   const { headers } = useLoaderData<typeof loader>();
   return (
+    // <VoiceProvider>
     <HotkeyProviderWrapper>
       <AppSidebar />
       <div className="bg-sidebar dark:bg-sidebar w-full">
@@ -22,5 +24,6 @@ export default function MailLayout() {
       <OnboardingWrapper />
       <NotificationProvider headers={headers} />
     </HotkeyProviderWrapper>
+    // </VoiceProvider>
   );
 }

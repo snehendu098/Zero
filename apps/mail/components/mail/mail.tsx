@@ -35,6 +35,7 @@ import { backgroundQueueAtom } from '@/store/backgroundQueue';
 import { handleUnsubscribe } from '@/lib/email-utils.client';
 import { useMediaQuery } from '../../hooks/use-media-query';
 import { useSearchValue } from '@/hooks/use-search-value';
+import { isMac } from '@/lib/hotkeys/use-hotkey-utils';
 import { MailList } from '@/components/mail/mail-list';
 import { useHotkeysContext } from 'react-hotkeys-hook';
 import { useNavigate, useParams } from 'react-router';
@@ -432,6 +433,15 @@ export function MailLayout() {
       disableScope('mail-list');
     };
   }, [threadId, enableScope, disableScope]);
+
+  const handleMailListMouseEnter = useCallback(() => {
+    enableScope('mail-list');
+  }, [enableScope]);
+
+  const handleMailListMouseLeave = useCallback(() => {
+    disableScope('mail-list');
+  }, [disableScope]);
+
   const [, setActiveReplyId] = useQueryState('activeReplyId');
 
   // Add mailto protocol handler registration
@@ -472,6 +482,8 @@ export function MailLayout() {
               `bg-panelLight dark:bg-panelDark mb-1 w-fit shadow-sm md:rounded-2xl md:border md:border-[#E7E7E7] lg:flex lg:shadow-sm dark:border-[#252525]`,
               isDesktop && threadId && 'hidden lg:block',
             )}
+            onMouseEnter={handleMailListMouseEnter}
+            onMouseLeave={handleMailListMouseLeave}
           >
             <div className="w-full md:h-[calc(100dvh-10px)]">
               <div
@@ -562,7 +574,7 @@ export function MailLayout() {
                       </Button>
                     )}
                     <kbd className="bg-muted text-md pointer-events-none hidden h-7 select-none items-center gap-0.5 rounded-md border-none px-2 font-medium opacity-100 sm:flex dark:bg-[#262626] dark:text-[#929292]">
-                      <span className="text-xl">⌘</span> K
+                      <span className="text-lg">{isMac ? '⌘' : 'Ctrl'}</span> K
                     </kbd>
                   </span>
                 </Button>

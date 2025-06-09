@@ -340,7 +340,8 @@
       "archive": "Archive",
       "bin": "Bin",
       "feedback": "Feedback",
-      "settings": "Settings"
+      "settings": "Settings",
+      "voice": "Voice Assistant"
     },
     "settings": {
       "general": "General",
@@ -480,7 +481,17 @@
           "showUpdates": "Show updates",
           "showPromotions": "Show promotions",
           "showUnread": "Show unread",
-          "selectUnderCursor": "Select under cursor"
+          "selectUnderCursor": "Select under cursor",
+          "openVoice": "Open Voice Assistant",
+          "clearAllFilters": "Clear all filters",
+          "markAsImportant": "Mark as important",
+          "markAsUnimportant": "Mark as unimportant",
+          "bulkDelete": "Bulk delete",
+          "bulkSelect": "Bulk select",
+          "bulkArchive": "Bulk archive",
+          "bulkStar": "Bulk star"
+
+          
         }
       },
       "labels": {
@@ -546,7 +557,7 @@
     }
   },
   "errorMessages": {
-    "required_scopes_missing": "We’re missing the permissions needed to craft your full experience. Please sign in again and allow the requested access.",
+    "required_scopes_missing": "We're missing the permissions needed to craft your full experience. Please sign in again and allow the requested access.",
     "early_access_required": "Early access is required to log in",
     "unauthorized": "Zero could not load your data from the 3rd party provider. Please try again."
   }
