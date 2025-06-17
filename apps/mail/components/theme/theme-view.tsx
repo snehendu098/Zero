@@ -14,7 +14,6 @@ import { AnimatePresence, motion } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { useThemes } from '@/hooks/use-themes';
 import { defaultThemes } from '@/lib/themes';
-import type { ThemeOption } from '@/types';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
@@ -54,7 +53,6 @@ const backdropVariants = {
 
 export default function ThemesPage() {
   const { activeTheme: selectedTheme, applyTheme, revertToDefault } = useCurrentTheme();
-  const [previewTheme, setPreviewTheme] = useState<ThemeOption | null>(null);
   const [open, setOpen] = useState<boolean>(false);
 
   const { useUserThemes } = useThemes();
@@ -63,11 +61,11 @@ export default function ThemesPage() {
 
   console.log(isLoading, userThemesData, isError);
 
-  const handleThemeClick = (themeData: ThemeColorSchema, dark: boolean) => {
+  const handleThemeClick = (themeData: ThemeColorSchema, dark: boolean, id: string) => {
     console.log(themeData);
     console.log('✨ Applying new theme');
 
-    applyTheme(themeData, dark);
+    applyTheme(themeData, dark, `${id}-${dark ? 'dark' : 'light'}`);
   };
 
   const handleDefaultThemeClick = (theme: (typeof defaultThemes)[0]) => {
@@ -89,117 +87,6 @@ export default function ThemesPage() {
     }
     revertToDefault(variant as 'light' | 'dark');
   };
-
-  const closePreview = () => {
-    setPreviewTheme(null);
-  };
-
-  // Helper function to determine if preview should be shown after this theme
-  const shouldShowPreviewAfter = (themeIndex: number, themes: any[]) => {
-    if (!previewTheme) return false;
-
-    const previewThemeIndex = themes.findIndex((theme) => theme.id === previewTheme);
-    if (previewThemeIndex === -1) return false;
-
-    const themesPerRow = 4;
-    const previewThemeRow = Math.floor(previewThemeIndex / themesPerRow);
-    const currentThemeRow = Math.floor(themeIndex / themesPerRow);
-    const lastThemeInRow = (currentThemeRow + 1) * themesPerRow - 1;
-    const isLastThemeInPreviewRow =
-      themeIndex === Math.min(lastThemeInRow, themes.length - 1) &&
-      currentThemeRow === previewThemeRow;
-
-    return isLastThemeInPreviewRow;
-  };
-
-  const renderPreviewPanel = () => (
-    <div className="col-span-full">
-      <Card className="border-primary/20 from-primary/5 mt-6 border-2 bg-gradient-to-r to-transparent">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="text-xl">Theme Preview</CardTitle>
-            <CardDescription>Preview</CardDescription>
-          </div>
-          <Button variant="ghost" size="icon" onClick={closePreview}>
-            <X className="h-4 w-4" />
-          </Button>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Buttons Preview */}
-          <div>
-            <h4 className="mb-3 text-sm font-medium">Buttons</h4>
-            <div className="flex flex-wrap gap-3">
-              <Button>Primary</Button>
-              <Button variant="secondary">Secondary</Button>
-              <Button variant="outline">Outline</Button>
-              <Button variant="ghost">Ghost</Button>
-              <Button variant="destructive">Destructive</Button>
-            </div>
-          </div>
-
-          {/* Colors Preview */}
-          <div>
-            <h4 className="mb-3 text-sm font-medium">Colors</h4>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-              <div className="space-y-1">
-                <div className="bg-primary text-primary-foreground flex h-12 items-center justify-center rounded-md text-xs font-medium">
-                  Primary
-                </div>
-                <p className="text-muted-foreground text-center text-xs">primary</p>
-              </div>
-              <div className="space-y-1">
-                <div className="bg-secondary text-secondary-foreground flex h-12 items-center justify-center rounded-md text-xs font-medium">
-                  Secondary
-                </div>
-                <p className="text-muted-foreground text-center text-xs">secondary</p>
-              </div>
-              <div className="space-y-1">
-                <div className="bg-accent text-accent-foreground flex h-12 items-center justify-center rounded-md text-xs font-medium">
-                  Accent
-                </div>
-                <p className="text-muted-foreground text-center text-xs">accent</p>
-              </div>
-              <div className="space-y-1">
-                <div className="bg-muted text-muted-foreground flex h-12 items-center justify-center rounded-md text-xs font-medium">
-                  Muted
-                </div>
-                <p className="text-muted-foreground text-center text-xs">muted</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Components Preview */}
-          <div>
-            <h4 className="mb-3 text-sm font-medium">Components</h4>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <Card className="max-w-sm">
-                <CardHeader>
-                  <CardTitle>Sample Card</CardTitle>
-                  <CardDescription>This is how cards look with this theme</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm">Content area with theme colors applied.</p>
-                </CardContent>
-                <CardFooter>
-                  <Button size="sm">Action</Button>
-                </CardFooter>
-              </Card>
-
-              <div className="space-y-3">
-                <h5 className="text-sm font-medium">Typography</h5>
-                <div className="space-y-2">
-                  <h6 className="font-semibold">Heading Text</h6>
-                  <p className="text-muted-foreground text-sm">
-                    This is how regular text appears with the selected theme.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
 
   return (
     <div className="text-foreground h-full">
@@ -319,9 +206,6 @@ export default function ThemesPage() {
                       </div>
                     </CardFooter>
                   </Card>
-
-                  {/* Show preview after this theme if it should be shown */}
-                  {shouldShowPreviewAfter(index, defaultThemes) && renderPreviewPanel()}
                 </div>
               ))}
             </div>
@@ -348,9 +232,19 @@ export default function ThemesPage() {
                     <>
                       {item.themeData['darkColors'] && (
                         <Card
-                          onClick={() => darkColors && handleThemeClick(darkColors, true)}
-                          className="relative"
+                          onClick={() => darkColors && handleThemeClick(darkColors, true, item.id)}
+                          className={cn(
+                            'relative',
+                            selectedTheme === `${item.id}-dark`
+                              ? 'ring-primary shadow-lg ring-2'
+                              : '',
+                          )}
                         >
+                          {/* {selectedTheme === `${item.id}-dark` && (
+                            <div className="bg-primary/20 absolute right-2 top-2 rounded-full p-1">
+                              <Check className="text-primary h-4 w-4" />
+                            </div>
+                          )} */}
                           <CardHeader>
                             <CardTitle>{item.name}</CardTitle>
                             <CardDescription>{item.description}</CardDescription>
@@ -401,9 +295,19 @@ export default function ThemesPage() {
 
                       {item.themeData['rootColors'] && (
                         <Card
-                          onClick={() => rootColors && handleThemeClick(rootColors, false)}
-                          className="relative"
+                          onClick={() => rootColors && handleThemeClick(rootColors, false, item.id)}
+                          className={cn(
+                            'relative',
+                            selectedTheme === `${item.id}-light`
+                              ? 'ring-primary shadow-lg ring-2'
+                              : '',
+                          )}
                         >
+                          {/* {selectedTheme === `${item.id}-light` && (
+                            <div className="bg-primary/20 absolute right-2 top-2 rounded-full p-1">
+                              <Check className="text-primary h-4 w-4" />
+                            </div>
+                          )} */}
                           <CardHeader>
                             <CardTitle>{item.name}</CardTitle>
                             <CardDescription>{item.description}</CardDescription>

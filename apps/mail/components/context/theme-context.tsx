@@ -12,7 +12,7 @@ export const CurrentThemeContext = createContext<{
   setActiveTheme: (theme: ThemeOption) => void;
   isTransitioning: boolean;
   setIsTransitioning: (isTransitioning: boolean) => void;
-  applyTheme: (themeData: ThemeColorSchema, dark: boolean) => void;
+  applyTheme: (themeData: ThemeColorSchema, dark: boolean, id: string) => void;
   removeTheme: () => void;
   revertToDefault: (variant?: 'light' | 'dark') => void;
   parseThemeOption: (option: ThemeOption) => { id: ThemeName | 'default'; variant: ThemeVariant };
@@ -144,7 +144,7 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
     // applyTheme(defaultTheme);
   };
 
-  const applyTheme = (themeData: ThemeColorSchema, dark: boolean) => {
+  const applyTheme = (themeData: ThemeColorSchema, dark: boolean, id: string) => {
     console.log('APPLY THEME', themeData);
 
     if (typeof themeData === 'string') {
@@ -182,8 +182,10 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
     console.log('✅ Dynamic theme CSS applied');
 
     // // 4. Update state and localStorage
-    // setActiveTheme(`${id}-${variant}` as ThemeOption);
+
+    setActiveTheme(`${id}` as ThemeOption);
     localStorage.setItem('theme-css', JSON.stringify(themeData));
+    localStorage.setItem('selected-theme', `${id}`);
     localStorage.removeItem('default');
     console.log('💾 Updated active theme and localStorage');
   };
@@ -230,6 +232,38 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
   //     document.documentElement.style.transition = '';
   //   }, 100);
   // }, []);
+
+  useEffect(() => {
+    // 1. for default themes
+    const defaultTheme = localStorage.getItem('default') as ThemeOption | null;
+    const customTheme = localStorage.getItem('selected-theme') as ThemeName | null;
+
+    if (defaultTheme) {
+      if (defaultTheme.split('-')[1] === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      setActiveTheme(defaultTheme);
+      // 2. for custom themes
+    } else if (customTheme) {
+      const themeData = localStorage.getItem('theme-css');
+      if (themeData) {
+        applyTheme(
+          JSON.parse(themeData) as ThemeColorSchema,
+          customTheme.includes('dark'),
+          customTheme,
+        );
+      } else {
+        revertToDefault();
+      }
+    } else {
+      // No theme set, revert to default light theme
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('default', 'default-light');
+      setActiveTheme('default-light');
+    }
+  });
 
   return (
     <CurrentThemeContext.Provider
