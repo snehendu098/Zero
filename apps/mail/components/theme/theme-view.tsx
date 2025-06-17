@@ -6,15 +6,15 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { generateCustomThemeData, parseTheme } from '@/lib/themes/theme-utils';
 import { useCurrentTheme } from '@/components/context/theme-context';
+import type { ThemeColorSchema } from '@zero/server/schemas';
 import ThemeCreator, { hslToHex } from './theme-customizer';
 import { Check, Moon, Plus, Sun, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import type { ThemeData, ThemeOption } from '@/types';
 import { Button } from '@/components/ui/button';
 import { useThemes } from '@/hooks/use-themes';
 import { defaultThemes } from '@/lib/themes';
+import type { ThemeOption } from '@/types';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
@@ -53,17 +53,9 @@ const backdropVariants = {
 };
 
 export default function ThemesPage() {
-  const {
-    activeTheme: selectedTheme,
-    applyTheme,
-    revertToDefault,
-    customThemes: userCustomThemes,
-  } = useCurrentTheme();
+  const { activeTheme: selectedTheme, applyTheme, revertToDefault } = useCurrentTheme();
   const [previewTheme, setPreviewTheme] = useState<ThemeOption | null>(null);
   const [open, setOpen] = useState<boolean>(false);
-
-  // Generate custom themes from API data using utility function
-  const userThemes = generateCustomThemeData(userCustomThemes);
 
   const { useUserThemes } = useThemes();
 
@@ -71,12 +63,11 @@ export default function ThemesPage() {
 
   console.log(isLoading, userThemesData, isError);
 
-  const handleThemeClick = (themeParams: ThemeData) => {
-    console.log(themeParams);
-    console.log('🖱️ Theme clicked:', themeParams.name, 'Currently selected:', selectedTheme);
+  const handleThemeClick = (themeData: ThemeColorSchema, dark: boolean) => {
+    console.log(themeData);
     console.log('✨ Applying new theme');
 
-    // applyTheme(themeParams);
+    applyTheme(themeData, dark);
   };
 
   const handleDefaultThemeClick = (theme: (typeof defaultThemes)[0]) => {
@@ -357,13 +348,7 @@ export default function ThemesPage() {
                     <>
                       {item.themeData['darkColors'] && (
                         <Card
-                          onClick={() =>
-                            console.log(
-                              item.themeData['darkColors']?.background &&
-                                hslToHex(item.themeData['darkColors'].background),
-                              item.themeData['darkColors']?.background,
-                            )
-                          }
+                          onClick={() => darkColors && handleThemeClick(darkColors, true)}
                           className="relative"
                         >
                           <CardHeader>
@@ -416,13 +401,7 @@ export default function ThemesPage() {
 
                       {item.themeData['rootColors'] && (
                         <Card
-                          onClick={() =>
-                            console.log(
-                              item.themeData['rootColors']?.background &&
-                                hslToHex(item.themeData['rootColors'].background),
-                              item.themeData['rootColors']?.background,
-                            )
-                          }
+                          onClick={() => rootColors && handleThemeClick(rootColors, false)}
                           className="relative"
                         >
                           <CardHeader>

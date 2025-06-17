@@ -320,44 +320,41 @@ export function hasLightMode(themeCss: string): boolean {
 }
 
 // Generate CSS from theme colors
-export function generateThemeCss(
-  lightColors?: ThemeColorSchema,
-  darkColors?: ThemeColorSchema,
-): string {
-  const lightCss = lightColors
+export function generateThemeCss(colors?: ThemeColorSchema): string {
+  const lightCss = colors
     ? `
     :root {
-      --radius: ${lightColors.radius || '0.5rem'};
-      --background: ${lightColors.background ? hexToHsl(lightColors.background) : defaultLight.background};
-      --foreground: ${lightColors.foreground ? hexToHsl(lightColors.foreground) : defaultLight.foreground};
-      --card: ${lightColors.card ? hexToHsl(lightColors.card) : defaultLight.card};
-      --card-foreground: ${lightColors['card-foreground'] ? hexToHsl(lightColors['card-foreground']) : defaultLight['card-foreground']};
-      --popover: ${lightColors.background ? hexToHsl(lightColors.background) : defaultLight.popover};
-      --popover-foreground: ${lightColors.foreground ? hexToHsl(lightColors.foreground) : defaultLight['popover-foreground']};
-      --primary: ${lightColors.primary ? hexToHsl(lightColors.primary) : defaultLight.primary};
-      --primary-foreground: ${lightColors.primary ? hexToHsl(invertColor(lightColors.primary)) : defaultLight['primary-foreground']};
-      --secondary: ${lightColors.secondary ? hexToHsl(lightColors.secondary) : defaultLight.secondary};
-      --secondary-foreground: ${lightColors.secondary ? hexToHsl(invertColor(lightColors.secondary)) : defaultLight['secondary-foreground']};
-      --muted: ${lightColors.muted ? hexToHsl(lightColors.muted) : defaultLight.muted};
-      --muted-foreground: ${lightColors.muted ? hexToHsl(invertColor(lightColors.muted, 0.7)) : defaultLight['muted-foreground']};
-      --accent: ${lightColors.accent ? hexToHsl(lightColors.accent) : defaultLight.accent};
-      --accent-foreground: ${lightColors.accent ? hexToHsl(invertColor(lightColors.accent)) : defaultLight['accent-foreground']};
-      --destructive: 0 84.2% 60.2%;
-      --destructive-foreground: 0 0% 98%;
-      --border: ${lightColors.border ? hexToHsl(lightColors.border) : defaultLight.border};
-      --input: ${lightColors.border ? hexToHsl(lightColors.border) : defaultLight.input};
-      --ring: ${lightColors.ring ? hexToHsl(lightColors.ring) : defaultLight.ring};
-      --sidebar: ${lightColors.sidebar ? hexToHsl(lightColors.sidebar) : defaultLight.sidebar};
-      --sidebar-foreground: ${lightColors['sidebar-foreground'] ? hexToHsl(lightColors['sidebar-foreground']) : defaultLight['sidebar-foreground']};
-      --sidebar-primary: ${lightColors.primary ? hexToHsl(lightColors.primary) : defaultLight['sidebar-primary']};
-      --sidebar-primary-foreground: ${lightColors.primary ? hexToHsl(invertColor(lightColors.primary)) : defaultLight['sidebar-primary-foreground']};
-      --sidebar-accent: ${lightColors['sidebar-accent'] ? hexToHsl(lightColors['sidebar-accent']) : defaultLight['sidebar-accent']};
-      --sidebar-accent-foreground: ${lightColors['sidebar-accent-foreground'] ? hexToHsl(lightColors['sidebar-accent-foreground']) : defaultLight['sidebar-accent-foreground']};
-      --sidebar-border: ${lightColors.border ? hexToHsl(lightColors.border) : defaultLight['sidebar-border']};
-      --sidebar-ring: ${lightColors.ring ? hexToHsl(lightColors.ring) : defaultLight['sidebar-ring']};
-      --icon-color: ${lightColors.primary ? lightColors.primary : 'black'};
+      --radius: ${colors.radius || '0.5rem'};
+      --background: ${colors.background ? colors.background : defaultLight.background};
+      --foreground: ${colors.foreground ? colors.foreground : defaultLight.foreground};
+      --card: ${colors.card ? colors.card : defaultLight.card};
+      --card-foreground: ${colors['card-foreground'] ? colors['card-foreground'] : defaultLight['card-foreground']};
+      --popover: ${colors.background ? colors.background : defaultLight.popover};
+      --popover-foreground: ${colors.foreground ? colors.foreground : defaultLight['popover-foreground']};
+      --primary: ${colors.primary ? colors.primary : defaultLight.primary};
+      --primary-foreground: ${colors['primary-foreground'] ? colors['primary-foreground'] : defaultLight['primary-foreground']};
+      --secondary: ${colors.secondary ? colors.secondary : defaultLight.secondary};
+      --secondary-foreground: ${colors['secondary-foreground'] ? colors['secondary-foreground'] : defaultLight['secondary-foreground']};
+      --muted: ${colors.muted ? colors.muted : defaultLight.muted};
+      --muted-foreground: ${colors['muted-foreground'] ? colors['muted-foreground'] : defaultLight['muted-foreground']};
+      --accent: ${colors.accent ? colors.accent : defaultLight.accent};
+      --accent-foreground: ${colors['accent-foreground'] ? colors['accent-foreground'] : defaultLight['accent-foreground']};
+      --destructive: ${colors.destructive ? colors.destructive : '0 84.2% 60.2%'};
+      --destructive-foreground: ${colors['destructive-foreground'] ? colors['destructive-foreground'] : '0 0% 98%'};
+      --border: ${colors.border ? colors.border : defaultLight.border};
+      --input: ${colors.input ? colors.input : defaultLight.input};
+      --ring: ${colors.ring ? colors.ring : defaultLight.ring};
+      --sidebar: ${colors.sidebar ? colors.sidebar : defaultLight.sidebar};
+      --sidebar-foreground: ${colors['sidebar-foreground'] ? colors['sidebar-foreground'] : defaultLight['sidebar-foreground']};
+      --sidebar-primary: ${colors['sidebar-primary'] ? colors['sidebar-primary'] : defaultLight['sidebar-primary']};
+      --sidebar-primary-foreground: ${colors['primary-foreground'] ? colors['primary-foreground'] : defaultLight['sidebar-primary-foreground']};
+      --sidebar-accent: ${colors['sidebar-accent'] ? colors['sidebar-accent'] : defaultLight['sidebar-accent']};
+      --sidebar-accent-foreground: ${colors['sidebar-accent-foreground'] ? colors['sidebar-accent-foreground'] : defaultLight['sidebar-accent-foreground']};
+      --sidebar-border: ${colors['sidebar-border'] ? colors['sidebar-border'] : defaultLight['sidebar-border']};
+      --sidebar-ring: ${colors['sidebar-ring'] ? colors['sidebar-ring'] : defaultLight['sidebar-ring']};
+      --icon-color: ${colors['sidebar-foreground'] ? hslToHex(colors['sidebar-foreground']) : 'black'};
       
-      --shadow-color: hsl(0 0% 0% / 0.1);
+      --shadow-color: ${colors['shadow-color'] ? colors['shadow-color'] : 'hsl(0 0% 0% / 0.1)'};
       --shadow-2xs: 0 1px 3px 0px rgb(from var(--shadow-color) r g b / 0.05);
       --shadow-xs: 0 1px 3px 0px rgb(from var(--shadow-color) r g b / 0.05);
       --shadow-sm: 0 1px 3px 0px rgb(from var(--shadow-color) r g b / 0.1), 0 1px 2px -1px rgb(from var(--shadow-color) r g b / 0.1);
@@ -370,45 +367,7 @@ export function generateThemeCss(
     `
     : '';
 
-  // Only add dark mode if provided
-  const darkCss = darkColors
-    ? `
-.dark {
-  --radius: ${darkColors.radius || lightColors?.radius || '0.5rem'};
-  --background: ${darkColors.background ? hexToHsl(darkColors.background) : defaultDark.background};
-  --foreground: ${darkColors.foreground ? hexToHsl(darkColors.foreground) : defaultDark.foreground};
-  --card: ${darkColors.card ? hexToHsl(darkColors.card) : defaultDark.card};
-  --card-foreground: ${darkColors['card-foreground'] ? hexToHsl(darkColors['card-foreground']) : defaultDark['card-foreground']};
-  --popover: ${darkColors.background ? hexToHsl(darkColors.background) : defaultDark.popover};
-  --popover-foreground: ${darkColors.foreground ? hexToHsl(darkColors.foreground) : defaultDark['popover-foreground']};
-  --primary: ${darkColors.primary ? hexToHsl(darkColors.primary) : defaultDark.primary};
-  --primary-foreground: ${darkColors.primary ? hexToHsl(invertColor(darkColors.primary)) : defaultDark['primary-foreground']};
-  --secondary: ${darkColors.secondary ? hexToHsl(darkColors.secondary) : defaultDark.secondary};
-  --secondary-foreground: ${darkColors.secondary ? hexToHsl(invertColor(darkColors.secondary)) : defaultDark['secondary-foreground']};
-  --muted: ${darkColors.muted ? hexToHsl(darkColors.muted) : defaultDark.muted};
-  --muted-foreground: ${darkColors.muted ? hexToHsl(invertColor(darkColors.muted, 0.7)) : defaultDark['muted-foreground']};
-  --accent: ${darkColors.accent ? hexToHsl(darkColors.accent) : defaultDark.accent};
-  --accent-foreground: ${darkColors.accent ? hexToHsl(invertColor(darkColors.accent)) : defaultDark['accent-foreground']};
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --border: ${darkColors.border ? hexToHsl(darkColors.border) : defaultDark.border};
-  --input: ${darkColors.border ? hexToHsl(darkColors.border) : defaultDark.input};
-  --ring: ${darkColors.ring ? hexToHsl(darkColors.ring) : defaultDark.ring};
-  --sidebar: ${darkColors.sidebar ? hexToHsl(darkColors.sidebar) : defaultDark.sidebar};
-  --sidebar-foreground: ${darkColors['sidebar-foreground'] ? hexToHsl(darkColors['sidebar-foreground']) : defaultDark['sidebar-foreground']};
-  --sidebar-primary: ${darkColors.primary ? hexToHsl(darkColors.primary) : defaultDark['sidebar-primary']};
-  --sidebar-primary-foreground: ${darkColors.primary ? hexToHsl(invertColor(darkColors.primary)) : defaultDark['sidebar-primary-foreground']};
-  --sidebar-accent: ${darkColors['sidebar-accent'] ? hexToHsl(darkColors['sidebar-accent']) : defaultDark['sidebar-accent']};
-  --sidebar-accent-foreground: ${darkColors['sidebar-accent-foreground'] ? hexToHsl(darkColors['sidebar-accent-foreground']) : defaultDark['sidebar-accent-foreground']};
-  --sidebar-border: ${darkColors.border ? hexToHsl(darkColors.border) : defaultDark['sidebar-border']};
-  --sidebar-ring: ${darkColors.ring ? hexToHsl(darkColors.ring) : defaultDark['sidebar-ring']};
-  --icon-color: ${darkColors.primary ? darkColors.primary : 'currentColor'};
-  
-  --shadow-color: hsl(0 0% 0% / 0.2);
-}`
-    : '';
-
-  return lightCss + darkCss;
+  return lightCss;
 }
 
 // Helper to invert a color for contrast
@@ -480,7 +439,7 @@ export function generateCustomThemeData(customThemes: CustomTheme[]): ThemeData[
         variant: 'light',
         description: theme.description,
         colors: theme.colors.light,
-        css: generateThemeCss(theme.colors.light, theme.colors.dark),
+        css: generateThemeCss(theme.colors.light),
         themeId: theme.id,
         isCustom: true,
       },
@@ -494,7 +453,7 @@ export function generateCustomThemeData(customThemes: CustomTheme[]): ThemeData[
         variant: 'dark',
         description: theme.description,
         colors: theme.colors.dark,
-        css: generateThemeCss(theme.colors.light, theme.colors.dark),
+        css: generateThemeCss(theme.colors.dark),
         themeId: theme.id,
         isCustom: true,
       });
@@ -543,7 +502,7 @@ export function parseTheme({ themes }: { themes: Theme[] }): ThemeData[] {
       id: item.id,
       name: item.name,
       description: item.description,
-      css: generateThemeCss(item.themeData?.rootColors, item.themeData?.darkColors),
+      css: generateThemeCss(item.themeData?.rootColors),
     };
   });
 

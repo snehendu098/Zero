@@ -1,6 +1,7 @@
 import type { ThemeName, ThemeOption, ThemeVariant, CustomTheme, ThemeData } from '@/types';
 import { useState, createContext, useEffect, useContext, useCallback } from 'react';
-import { getCustomThemes } from '@/lib/themes/theme-utils';
+import { generateThemeCss, getCustomThemes } from '@/lib/themes/theme-utils';
+import type { ThemeColorSchema } from '@zero/server/schemas';
 import { defaultThemes } from '@/lib/themes';
 import type React from 'react';
 
@@ -11,7 +12,7 @@ export const CurrentThemeContext = createContext<{
   setActiveTheme: (theme: ThemeOption) => void;
   isTransitioning: boolean;
   setIsTransitioning: (isTransitioning: boolean) => void;
-  applyTheme: (themeParams: ThemeData, defaultTheme?: (typeof defaultThemes)[0]) => void;
+  applyTheme: (themeData: ThemeColorSchema, dark: boolean) => void;
   removeTheme: () => void;
   revertToDefault: (variant?: 'light' | 'dark') => void;
   parseThemeOption: (option: ThemeOption) => { id: ThemeName | 'default'; variant: ThemeVariant };
@@ -143,16 +144,14 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
     // applyTheme(defaultTheme);
   };
 
-  const applyTheme = (themeParams: ThemeData) => {
-    console.log('APPLY THEME', themeParams);
+  const applyTheme = (themeData: ThemeColorSchema, dark: boolean) => {
+    console.log('APPLY THEME', themeData);
 
-    if (typeof themeParams === 'string') {
-      themeParams = JSON.parse(themeParams) as ThemeData;
+    if (typeof themeData === 'string') {
+      themeData = JSON.parse(themeData) as ThemeColorSchema;
     }
 
-    const [id, variant] = [themeParams.id, themeParams.variant];
-
-    console.log('📝 Applying theme:', { id, variant });
+    console.log('📝 Applying theme:');
 
     // 1. Remove any existing theme styles
     const existingStyle = document.getElementById('dynamic-theme-style');
@@ -163,8 +162,8 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
       console.log('ℹ️ No existing custom styles found');
     }
 
-    // 2. Setting dark mode or light mode
-    if (variant === 'dark') {
+    // // 2. Setting dark mode or light mode
+    if (dark) {
       console.log('🌙 Setting dark mode');
       document.documentElement.classList.add('dark');
     } else {
@@ -172,17 +171,19 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
       document.documentElement.classList.remove('dark');
     }
 
+    const themeCss = generateThemeCss(themeData);
+
     // 3. Create new style element and set styles
     const style = document.createElement('style');
     style.id = 'dynamic-theme-style';
-    style.innerHTML = themeParams.css;
+    style.innerHTML = themeCss;
 
     document.head.appendChild(style);
     console.log('✅ Dynamic theme CSS applied');
 
-    // 4. Update state and localStorage
-    setActiveTheme(`${id}-${variant}` as ThemeOption);
-    localStorage.setItem('selected-theme', JSON.stringify(themeParams));
+    // // 4. Update state and localStorage
+    // setActiveTheme(`${id}-${variant}` as ThemeOption);
+    localStorage.setItem('theme-css', JSON.stringify(themeData));
     localStorage.removeItem('default');
     console.log('💾 Updated active theme and localStorage');
   };
@@ -201,34 +202,34 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
     document.documentElement.classList.remove('dark');
   };
 
-  useEffect(() => {
-    setMounted(true);
+  // useEffect(() => {
+  //   setMounted(true);
 
-    const savedTheme = localStorage.getItem('selected-theme');
+  //   const savedTheme = localStorage.getItem('selected-theme');
 
-    if (savedTheme) {
-      console.log('USE EFFECT', JSON.parse(savedTheme));
-      applyTheme(JSON.parse(savedTheme) as ThemeData);
-    } else {
-      const defaultTheme = localStorage.getItem('default') as ThemeOption | null;
+  //   if (savedTheme) {
+  //     console.log('USE EFFECT', JSON.parse(savedTheme));
+  //     applyTheme(JSON.parse(savedTheme) as ThemeData);
+  //   } else {
+  //     const defaultTheme = localStorage.getItem('default') as ThemeOption | null;
 
-      if (!defaultTheme) {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('default', 'default-light');
-        setActiveTheme('default-light');
-      } else {
-        if (defaultTheme.split('-')[1] === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-        setActiveTheme(defaultTheme);
-      }
-    }
-    setTimeout(() => {
-      document.documentElement.style.transition = '';
-    }, 100);
-  }, []);
+  //     if (!defaultTheme) {
+  //       document.documentElement.classList.remove('dark');
+  //       localStorage.setItem('default', 'default-light');
+  //       setActiveTheme('default-light');
+  //     } else {
+  //       if (defaultTheme.split('-')[1] === 'dark') {
+  //         document.documentElement.classList.add('dark');
+  //       } else {
+  //         document.documentElement.classList.remove('dark');
+  //       }
+  //       setActiveTheme(defaultTheme);
+  //     }
+  //   }
+  //   setTimeout(() => {
+  //     document.documentElement.style.transition = '';
+  //   }, 100);
+  // }, []);
 
   return (
     <CurrentThemeContext.Provider
