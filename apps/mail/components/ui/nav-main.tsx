@@ -297,8 +297,6 @@ function NavItem(item: NavItemProps & { href: string }) {
     );
   }
 
-  const { setOpenMobile } = useSidebar();
-
   const buttonContent = (
     <SidebarMenuButton
       tooltip={state === 'collapsed' ? t(item.title as MessageKey) : undefined}

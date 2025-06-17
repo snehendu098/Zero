@@ -7,7 +7,7 @@ import { getContext } from 'hono/context-storage';
 import { themesRouter } from './routes/themes';
 import { draftsRouter } from './routes/drafts';
 import { labelsRouter } from './routes/label';
-import { voiceRouter } from './routes/voice';
+// import { voiceRouter } from './routes/voice';
 import { notesRouter } from './routes/notes';
 import { brainRouter } from './routes/brain';
 import { userRouter } from './routes/user';
@@ -28,7 +28,7 @@ export const appRouter = router({
   shortcut: shortcutRouter,
   settings: settingsRouter,
   user: userRouter,
-  voice: voiceRouter,
+  // voice: voiceRouter,
   themes: themesRouter,
 });
 
