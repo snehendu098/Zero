@@ -5,7 +5,7 @@ import { useHotkeysContext } from 'react-hotkeys-hook';
 import { useTRPC } from '@/providers/query-provider';
 import { useMutation } from '@tanstack/react-query';
 import { useSettings } from '@/hooks/use-settings';
-import { constructReplyBody } from '@/lib/utils';
+import { constructReplyBody, constructForwardBody } from '@/lib/utils';
 import { useThread } from '@/hooks/use-threads';
 import { serializeFiles } from '@/lib/schemas';
 import { useDraft } from '@/hooks/use-drafts';
@@ -15,6 +15,7 @@ import type { Sender } from '@/types';
 import { useQueryState } from 'nuqs';
 import posthog from 'posthog-js';
 import { toast } from 'sonner';
+import { useSession } from '@/lib/auth-client';
 
 interface ReplyComposeProps {
   messageId?: string;
@@ -33,6 +34,7 @@ export default function ReplyCompose({ messageId }: ReplyComposeProps) {
   const { mutateAsync: sendEmail } = useMutation(trpc.mail.send.mutationOptions());
   const { data: activeConnection } = useActiveConnection();
   const { data: settings, isLoading: settingsLoading } = useSettings();
+  const { data: session } = useSession();
 
   // Find the specific message to reply to
   const replyToMessage =
@@ -111,8 +113,32 @@ export default function ReplyCompose({ messageId }: ReplyComposeProps) {
 
     try {
       const userEmail = activeConnection.email.toLowerCase();
+      const userName = activeConnection.name || session?.user?.name || '';
 
-      // Convert email strings to Sender objects
+      let fromEmail = userEmail;
+
+      if (aliases && aliases.length > 0 && replyToMessage) {
+
+        const allRecipients = [
+          ...(replyToMessage.to || []),
+          ...(replyToMessage.cc || []),
+          ...(replyToMessage.bcc || []),
+        ];
+        const matchingAlias = aliases.find((alias) =>
+          allRecipients.some(
+            (recipient) => recipient.email.toLowerCase() === alias.email.toLowerCase(),
+          ),
+        );
+
+        if (matchingAlias) {
+          fromEmail = userName.trim() ? `${userName.replace(/[<>]/g, '')} <${matchingAlias.email}>` : matchingAlias.email;
+
+        } else {
+          const primaryEmail =  aliases.find((alias) => alias.primary)?.email || aliases[0]?.email || userEmail;
+          fromEmail = userName.trim() ? `${userName.replace(/[<>]/g, '')} <${primaryEmail}>` : primaryEmail;
+        }
+      }
+
       const toRecipients: Sender[] = data.to.map((email) => ({
         email,
         name: email.split('@')[0] || 'User',
@@ -136,22 +162,30 @@ export default function ReplyCompose({ messageId }: ReplyComposeProps) {
         ? '<p style="color: #666; font-size: 12px;">Sent via <a href="https://0.email/" style="color: #0066cc; text-decoration: none;">Zero</a></p>'
         : '';
 
-      const replyBody = constructReplyBody(
-        data.message + zeroSignature,
-        new Date(replyToMessage.receivedOn || '').toLocaleString(),
-        replyToMessage.sender,
-        toRecipients,
-        replyToMessage.decodedBody,
-      );
+      const emailBody = mode === 'forward'
+        ? constructForwardBody(
+            data.message + zeroSignature,
+            new Date(replyToMessage.receivedOn || '').toLocaleString(),
+            { ...replyToMessage.sender, subject: replyToMessage.subject },
+            toRecipients,
+            replyToMessage.decodedBody,
+          )
+        : constructReplyBody(
+            data.message + zeroSignature,
+            new Date(replyToMessage.receivedOn || '').toLocaleString(),
+            replyToMessage.sender,
+            toRecipients,
+            replyToMessage.decodedBody,
+          );
 
       await sendEmail({
         to: toRecipients,
         cc: ccRecipients,
         bcc: bccRecipients,
         subject: data.subject,
-        message: replyBody,
+        message: emailBody,
         attachments: await serializeFiles(data.attachments),
-        fromEmail: aliases?.[0]?.email || userEmail,
+        fromEmail: fromEmail,
         headers: {
           'In-Reply-To': replyToMessage?.messageId ?? '',
           References: [
@@ -163,6 +197,8 @@ export default function ReplyCompose({ messageId }: ReplyComposeProps) {
           'Thread-Id': replyToMessage?.threadId ?? '',
         },
         threadId: replyToMessage?.threadId,
+        isForward: mode === 'forward',
+        originalMessage: replyToMessage.decodedBody,
       });
 
       posthog.capture('Reply Email Sent');
@@ -205,6 +241,7 @@ export default function ReplyCompose({ messageId }: ReplyComposeProps) {
   return (
     <div className="w-full rounded-xl">
       <EmailComposer
+        editorClassName="min-h-[50px]"
         className="w-full !max-w-none border pb-1"
         onSendEmail={handleSendEmail}
         onClose={async () => {
@@ -235,6 +272,7 @@ export default function ReplyCompose({ messageId }: ReplyComposeProps) {
         })}
         autofocus={shouldFocus}
         settingsLoading={settingsLoading}
+        replyingTo={replyToMessage?.sender.email}
       />
     </div>
   );

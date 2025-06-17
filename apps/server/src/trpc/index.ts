@@ -9,6 +9,7 @@ import { draftsRouter } from './routes/drafts';
 import { labelsRouter } from './routes/label';
 import { voiceRouter } from './routes/voice';
 import { notesRouter } from './routes/notes';
+import { notesRouter } from './routes/notes';
 import { brainRouter } from './routes/brain';
 import { userRouter } from './routes/user';
 import { mailRouter } from './routes/mail';

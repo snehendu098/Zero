@@ -44,7 +44,24 @@ export class GoogleMailManager implements MailManager {
       'https://www.googleapis.com/auth/userinfo.email',
     ].join(' ');
   }
-  public getAttachment(messageId: string, attachmentId: string) {
+  public async listHistory<T>(historyId: string): Promise<{ history: T[]; historyId: string }> {
+    return this.withErrorHandler(
+      'listHistory',
+      async () => {
+        const response = await this.gmail.users.history.list({
+          userId: 'me',
+          startHistoryId: historyId,
+        });
+
+        const history = response.data.history || [];
+        const nextHistoryId = response.data.historyId || historyId;
+
+        return { history: history as T[], historyId: nextHistoryId };
+      },
+      { historyId },
+    );
+  }
+  public async getAttachment(messageId: string, attachmentId: string) {
     return this.withErrorHandler(
       'getAttachment',
       async () => {
@@ -65,22 +82,30 @@ export class GoogleMailManager implements MailManager {
   }
   public getEmailAliases() {
     return this.withErrorHandler('getEmailAliases', async () => {
+      console.log('Fetching email aliases...');
+
       const profile = await this.gmail.users.getProfile({
         userId: 'me',
       });
+      console.log('Retrieved user profile:', { email: profile.data.emailAddress });
 
       const primaryEmail = profile.data.emailAddress || '';
       const aliases: { email: string; name?: string; primary?: boolean }[] = [
         { email: primaryEmail, primary: true },
       ];
+      console.log('Added primary email to aliases:', { primaryEmail });
 
       const settings = await this.gmail.users.settings.sendAs.list({
         userId: 'me',
+      });
+      console.log('Retrieved sendAs settings:', {
+        sendAsCount: settings.data.sendAs?.length || 0,
       });
 
       if (settings.data.sendAs) {
         settings.data.sendAs.forEach((alias) => {
           if (alias.isPrimary && alias.sendAsEmail === primaryEmail) {
+            console.log('Skipping duplicate primary email:', { email: alias.sendAsEmail });
             return;
           }
 
@@ -89,9 +114,15 @@ export class GoogleMailManager implements MailManager {
             name: alias.displayName || undefined,
             primary: alias.isPrimary || false,
           });
+          console.log('Added alias:', {
+            email: alias.sendAsEmail,
+            name: alias.displayName,
+            primary: alias.isPrimary,
+          });
         });
       }
 
+      console.log('Returning aliases:', { aliasCount: aliases.length });
       return aliases;
     });
   }
@@ -732,13 +763,14 @@ export class GoogleMailManager implements MailManager {
         });
         // Process res.data.messages to extract id and labelIds
         return {
-          messages: res.data.messages?.map(msg => ({
-            id: msg.id,
-            labelIds: msg.labelIds
-          })) || []
+          messages:
+            res.data.messages?.map((msg) => ({
+              id: msg.id,
+              labelIds: msg.labelIds,
+            })) || [],
         };
       },
-      { threadId, email: this.config.auth?.email }
+      { threadId, email: this.config.auth?.email },
     );
   }
 
@@ -898,6 +930,8 @@ export class GoogleMailManager implements MailManager {
     cc,
     bcc,
     fromEmail,
+    isForward = false,
+    originalMessage = null,
   }: IOutgoingMessage) {
     const msg = createMimeMessage();
 
@@ -990,10 +1024,17 @@ export class GoogleMailManager implements MailManager {
 
     msg.setSubject(subject);
 
-    msg.addMessage({
-      contentType: 'text/html',
-      data: await sanitizeTipTapHtml(message.trim()),
-    });
+    if (originalMessage) {
+      msg.addMessage({
+        contentType: 'text/html',
+        data: `${await sanitizeTipTapHtml(message.trim())}${originalMessage}`,
+      });
+    } else {
+      msg.addMessage({
+        contentType: 'text/html',
+        data: await sanitizeTipTapHtml(message.trim()),
+      });
+    }
 
     if (headers) {
       Object.entries(headers).forEach(([key, value]) => {
