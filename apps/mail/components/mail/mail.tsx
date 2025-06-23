@@ -185,7 +185,7 @@ const AutoLabelingSettings = () => {
   };
 
   const handleEnableBrain = useCallback(async () => {
-    toast.promise(EnableBrain({}), {
+    toast.promise(EnableBrain(), {
       loading: 'Enabling autolabeling...',
       success: 'Autolabeling enabled successfully',
       error: 'Failed to enable autolabeling',
@@ -196,7 +196,7 @@ const AutoLabelingSettings = () => {
   }, []);
 
   const handleDisableBrain = useCallback(async () => {
-    toast.promise(DisableBrain({}), {
+    toast.promise(DisableBrain(), {
       loading: 'Disabling autolabeling...',
       success: 'Autolabeling disabled successfully',
       error: 'Failed to disable autolabeling',
@@ -532,7 +532,7 @@ export function MailLayout() {
                 <Button
                   variant="outline"
                   className={cn(
-                    'text-muted-foreground relative flex h-8 w-full select-none items-center justify-start overflow-hidden rounded-lg border bg-white pl-2 text-left text-sm font-normal shadow-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 dark:border-none dark:bg-[#141414]',
+                    'text-muted-foreground bg-input relative flex h-8 w-full select-none items-center justify-start overflow-hidden rounded-lg border-2 pl-2 text-left text-sm font-normal shadow-none ring-0 focus-visible:ring-0 focus-visible:ring-offset-0',
                   )}
                   onClick={() => setOpen(!open)}
                 >
@@ -589,7 +589,7 @@ export function MailLayout() {
               </div>
               <div
                 className={cn(
-                  `${category[0] === 'Important' ? 'bg-[#F59E0D]' : category[0] === 'All Mail' ? 'bg-[#006FFE]' : category[0] === 'Personal' ? 'bg-[#39ae4a]' : category[0] === 'Updates' ? 'bg-[#8B5CF6]' : category[0] === 'Promotions' ? 'bg-[#F43F5E]' : category[0] === 'Unread' ? 'bg-[#FF4800]' : 'bg-[#F59E0D]'}`,
+                  `${category[0] === 'Important' ? 'bg-[#F59E0D]' : category[0] === 'All Mail' ? 'bg-primary' : category[0] === 'Personal' ? 'bg-[#39ae4a]' : category[0] === 'Updates' ? 'bg-[#8B5CF6]' : category[0] === 'Promotions' ? 'bg-[#F43F5E]' : category[0] === 'Unread' ? 'bg-[#FF4800]' : 'bg-[#F59E0D]'}`,
                   'relative bottom-0.5 z-[5] h-0.5 w-full transition-opacity',
                   isFetching ? 'opacity-100' : 'opacity-0',
                 )}
