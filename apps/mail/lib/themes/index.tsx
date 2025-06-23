@@ -1,5 +1,3 @@
-import type { ApiThemeResponse } from '@/types';
-
 export const defaultThemes = [
   {
     id: 'default-light',

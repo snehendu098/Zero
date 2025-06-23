@@ -185,5 +185,7 @@ export const theme = createTable('theme', {
   themeData: jsonb('theme_data').notNull(),
   isPublic: boolean('is_public').default(false),
   createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
+  updatedAt: timestamp('updated_at')
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });

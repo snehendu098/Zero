@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 export function MailListHotkeys() {
   const scope = 'mail-list';
   const [mail, setMail] = useMail();
-  const [{ }, items] = useThreads();
+  const [, items] = useThreads();
   const t = useTranslations();
   const hoveredEmailId = useRef<string | null>(null);
   const categories = Categories();

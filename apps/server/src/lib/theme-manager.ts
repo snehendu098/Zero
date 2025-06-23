@@ -1,4 +1,4 @@
-import type { CreateTheme, Theme, ThemeData, UpdateTheme } from './schemas';
+import type { CreateTheme, Theme, ThemePallette, UpdateTheme } from './schemas';
 import { and, desc, eq, like, or } from 'drizzle-orm';
 import { theme } from '../db/schema';
 import type { DB } from '../db';
@@ -23,7 +23,7 @@ export class ThemeManager {
       connectionId: row.connectionId,
       name: row.name,
       description: row.description,
-      themeData: row.themeData as ThemeData,
+      themeData: row.themeData as ThemePallette,
       isPublic: row.isPublic ?? false,
       createdAt: row.createdAt ?? new Date(),
       updatedAt: row.updatedAt ?? new Date(),
@@ -43,7 +43,7 @@ export class ThemeManager {
       connectionId: row.connectionId,
       name: row.name,
       description: row.description,
-      themeData: row.themeData as ThemeData,
+      themeData: row.themeData as ThemePallette,
       isPublic: row.isPublic ?? false,
       createdAt: row.createdAt ?? new Date(),
       updatedAt: row.updatedAt ?? new Date(),
@@ -65,7 +65,7 @@ export class ThemeManager {
       connectionId: foundTheme.connectionId,
       name: foundTheme.name,
       description: foundTheme.description,
-      themeData: foundTheme.themeData as ThemeData,
+      themeData: foundTheme.themeData as ThemePallette,
       isPublic: foundTheme.isPublic ?? false,
       createdAt: foundTheme.createdAt ?? new Date(),
       updatedAt: foundTheme.updatedAt ?? new Date(),
@@ -109,7 +109,7 @@ export class ThemeManager {
       connectionId: row.connectionId,
       name: row.name,
       description: row.description,
-      themeData: row.themeData as ThemeData,
+      themeData: row.themeData as ThemePallette,
       isPublic: row.isPublic ?? false,
       createdAt: row.createdAt ?? new Date(),
       updatedAt: row.updatedAt ?? new Date(),
@@ -143,7 +143,7 @@ export class ThemeManager {
       connectionId: newTheme.connectionId,
       name: newTheme.name,
       description: newTheme.description,
-      themeData: newTheme.themeData as ThemeData,
+      themeData: newTheme.themeData as ThemePallette,
       isPublic: newTheme.isPublic ?? false,
       createdAt: newTheme.createdAt ?? new Date(),
       updatedAt: newTheme.updatedAt ?? new Date(),
@@ -172,7 +172,7 @@ export class ThemeManager {
       connectionId: updatedTheme.connectionId,
       name: updatedTheme.name,
       description: updatedTheme.description,
-      themeData: updatedTheme.themeData as ThemeData,
+      themeData: updatedTheme.themeData as ThemePallette,
       isPublic: updatedTheme.isPublic ?? false,
       createdAt: updatedTheme.createdAt ?? new Date(),
       updatedAt: updatedTheme.updatedAt ?? new Date(),
@@ -206,7 +206,7 @@ export class ThemeManager {
     return this.createTheme(userId, connectionId, {
       name: `${publicTheme.name} (Copy)`,
       description: publicTheme.description || undefined,
-      themeData: publicTheme.themeData as ThemeData,
+      themeData: publicTheme.themeData as ThemePallette,
       isPublic: false,
     });
   }

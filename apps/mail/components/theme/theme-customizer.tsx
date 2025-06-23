@@ -7,9 +7,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Palette, Sun, Moon, Download, Globe, CornerDownRight, SaveIcon } from 'lucide-react';
-import type { CreateTheme, ThemeColorSchema, ThemeDataSchema } from '@zero/server/schemas';
+import { Palette, Sun, Moon, Globe, CornerDownRight, SaveIcon } from 'lucide-react';
+import type { CreateTheme, ThemeDataSchema } from '@zero/server/schemas';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { hexToHsl, hslToHex } from '@/lib/themes/theme-utils';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
@@ -118,99 +119,6 @@ const colorGroups = [
     ],
   },
 ];
-
-// Convert HSL to hex for color input
-export function hslToHex(hsl: string): string {
-  try {
-    const [h, s, l] = hsl.split(' ').map((v) => {
-      const num = Number.parseFloat(v.replace('%', ''));
-      return isNaN(num) ? 0 : num;
-    });
-
-    const hNorm = (((h % 360) + 360) % 360) / 360;
-    const sNorm = Math.max(0, Math.min(100, s)) / 100;
-    const lNorm = Math.max(0, Math.min(100, l)) / 100;
-
-    const c = (1 - Math.abs(2 * lNorm - 1)) * sNorm;
-    const x = c * (1 - Math.abs(((hNorm * 6) % 2) - 1));
-    const m = lNorm - c / 2;
-
-    let r = 0,
-      g = 0,
-      b = 0;
-
-    if (hNorm >= 0 && hNorm < 1 / 6) {
-      r = c;
-      g = x;
-      b = 0;
-    } else if (hNorm >= 1 / 6 && hNorm < 2 / 6) {
-      r = x;
-      g = c;
-      b = 0;
-    } else if (hNorm >= 2 / 6 && hNorm < 3 / 6) {
-      r = 0;
-      g = c;
-      b = x;
-    } else if (hNorm >= 3 / 6 && hNorm < 4 / 6) {
-      r = 0;
-      g = x;
-      b = c;
-    } else if (hNorm >= 4 / 6 && hNorm < 5 / 6) {
-      r = x;
-      g = 0;
-      b = c;
-    } else {
-      r = c;
-      g = 0;
-      b = x;
-    }
-
-    const rHex = Math.round(Math.max(0, Math.min(255, (r + m) * 255)))
-      .toString(16)
-      .padStart(2, '0');
-    const gHex = Math.round(Math.max(0, Math.min(255, (g + m) * 255)))
-      .toString(16)
-      .padStart(2, '0');
-    const bHex = Math.round(Math.max(0, Math.min(255, (b + m) * 255)))
-      .toString(16)
-      .padStart(2, '0');
-
-    return `#${rHex}${gHex}${bHex}`;
-  } catch (error) {
-    return '#000000';
-  }
-}
-
-// Convert hex to HSL
-function hexToHsl(hex: string): string {
-  try {
-    const cleanHex = hex.replace('#', '').padEnd(6, '0').slice(0, 6);
-    const r = Number.parseInt(cleanHex.slice(0, 2), 16) / 255;
-    const g = Number.parseInt(cleanHex.slice(2, 4), 16) / 255;
-    const b = Number.parseInt(cleanHex.slice(4, 6), 16) / 255;
-
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    const diff = max - min;
-
-    let h = 0;
-    if (diff !== 0) {
-      if (max === r) h = ((g - b) / diff) % 6;
-      else if (max === g) h = (b - r) / diff + 2;
-      else h = (r - g) / diff + 4;
-    }
-
-    h = Math.round(h * 60);
-    if (h < 0) h += 360;
-
-    const l = (max + min) / 2;
-    const s = diff === 0 ? 0 : diff / (1 - Math.abs(2 * l - 1));
-
-    return `${h} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
-  } catch (error) {
-    return '0 0% 0%';
-  }
-}
 
 const generateThemeStyles = (theme: typeof defaultDarkTheme): React.CSSProperties => {
   const styles: Record<string, string> = {};
@@ -432,8 +340,12 @@ export default function ThemeCreator() {
       isPublic,
     };
 
-    await createTheme.mutateAsync(themePayload);
-    toast.success('Theme Created Successfully');
+    try {
+      await createTheme.mutateAsync(themePayload);
+      toast.success('Theme created successfully');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to create theme. Please try again.');
+    }
   };
 
   const ColorInput = ({ variable, label }: { variable: string; label: string }) => {

@@ -92,7 +92,6 @@ export function MailIframe({ html, senderEmail }: { html: string; senderEmail: s
       finalHtml = addStyleTags(processedHtml);
     }
 
-
     const url = URL.createObjectURL(new Blob([finalHtml], { type: 'text/html' }));
     iframeRef.current.src = url;
 
@@ -118,8 +117,7 @@ export function MailIframe({ html, senderEmail }: { html: string; senderEmail: s
       body.style.backgroundColor =
         resolvedTheme === 'dark' ? 'rgb(10, 10, 10)' : 'rgb(245, 245, 245)';
 
-      body.style.color = resolvedTheme === 'light' ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)';
-      console.log("iframe", body)
+      body.style.color = resolvedTheme === 'dark' ? 'rgb(255, 255, 255)' : 'rgb(0, 0, 0)';
 
       requestAnimationFrame(() => {
         fixNonReadableColors(body);

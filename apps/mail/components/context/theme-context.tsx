@@ -1,8 +1,7 @@
-import type { ThemeName, ThemeOption, ThemeVariant, CustomTheme, ThemeData } from '@/types';
-import { useState, createContext, useEffect, useContext, useCallback } from 'react';
-import { generateThemeCss, getCustomThemes } from '@/lib/themes/theme-utils';
+import { useState, createContext, useEffect, useContext } from 'react';
+import type { ThemeName, ThemeOption, ThemeVariant } from '@/types';
 import type { ThemeColorSchema } from '@zero/server/schemas';
-import { defaultThemes } from '@/lib/themes';
+import { generateThemeCss } from '@/lib/themes/theme-utils';
 import type React from 'react';
 
 export const CurrentThemeContext = createContext<{
@@ -16,14 +15,6 @@ export const CurrentThemeContext = createContext<{
   removeTheme: () => void;
   revertToDefault: (variant?: 'light' | 'dark') => void;
   parseThemeOption: (option: ThemeOption) => { id: ThemeName | 'default'; variant: ThemeVariant };
-  // getThemeColors: (themeOption: ThemeOption) => {
-  //   primary: string;
-  //   secondary: string;
-  //   accent: string;
-  //   muted: string;
-  // };
-  customThemes: CustomTheme[];
-  refreshCustomThemes: () => void;
 }>({
   mounted: false,
   setMounted: () => {},
@@ -35,29 +26,12 @@ export const CurrentThemeContext = createContext<{
   removeTheme: () => {},
   revertToDefault: () => {},
   parseThemeOption: () => ({ id: 'default', variant: 'light' }),
-  // getThemeColors: () => ({
-  //   primary: '#000000',
-  //   secondary: '#f1f5f9',
-  //   accent: '#f1f5f9',
-  //   muted: '#f1f5f9',
-  // }),
-  customThemes: [],
-  refreshCustomThemes: () => {},
 });
 
 export const ThemeContextProvider = ({ children }: { children: React.ReactNode }) => {
   const [mounted, setMounted] = useState(false);
   const [activeTheme, setActiveTheme] = useState<ThemeOption | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [customThemes, setCustomThemes] = useState<CustomTheme[]>([]);
-
-  // Load custom themes from localStorage with useCallback to prevent infinite loops
-  const refreshCustomThemes = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      const themes = getCustomThemes();
-      setCustomThemes(themes);
-    }
-  }, []);
 
   // Parse theme option to get name and variant (updated to handle default themes)
   const parseThemeOption = (
@@ -66,63 +40,6 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
     const [id, variant] = option.split('-') as [ThemeName | 'default', ThemeVariant];
     return { id, variant };
   };
-
-  // // Get theme colors dynamically from CSS or defaults
-  // const getThemeColors = (themeOption: ThemeOption) => {
-  //   const { id, variant } = parseThemeOption(themeOption);
-
-  //   // Default theme colors
-  //   if (id === 'default') {
-  //     return variant === 'dark'
-  //       ? {
-  //           primary: '#ffffff',
-  //           secondary: '#1e293b',
-  //           accent: '#1e293b',
-  //           muted: '#1e293b',
-  //         }
-  //       : {
-  //           primary: '#000000',
-  //           secondary: '#f1f5f9',
-  //           accent: '#f1f5f9',
-  //           muted: '#f1f5f9',
-  //         };
-  //   }
-
-  //   // Check if it's a custom theme
-  //   const customTheme = customThemes.find((theme) => theme.id.toLowerCase() === id);
-  //   if (customTheme) {
-  //     if (variant === 'dark' && customTheme.colors.dark) {
-  //       return {
-  //         primary: customTheme.colors.dark.primary,
-  //         secondary: customTheme.colors.dark.secondary,
-  //         accent: customTheme.colors.dark.accent,
-  //         muted: customTheme.colors.dark.muted,
-  //       };
-  //     }
-  //     return {
-  //       primary: customTheme.colors.light.primary,
-  //       secondary: customTheme.colors.light.secondary,
-  //       accent: customTheme.colors.light.accent,
-  //       muted: customTheme.colors.light.muted,
-  //     };
-  //   }
-
-  //   // Find theme in API response
-  //   const apiTheme = themesApiReponse.find((theme) => theme.id.toLowerCase() === id);
-  //   if (apiTheme) {
-  //     return variant === 'dark'
-  //       ? extractDarkThemeColors(apiTheme.css)
-  //       : extractThemeColors(apiTheme.css);
-  //   }
-
-  //   // Fallback colors
-  //   return {
-  //     primary: '#000000',
-  //     secondary: '#f1f5f9',
-  //     accent: '#f1f5f9',
-  //     muted: '#f1f5f9',
-  //   };
-  // };
 
   // Revert to default theme
   const revertToDefault = (variant?: 'light' | 'dark') => {
@@ -204,35 +121,6 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
     document.documentElement.classList.remove('dark');
   };
 
-  // useEffect(() => {
-  //   setMounted(true);
-
-  //   const savedTheme = localStorage.getItem('selected-theme');
-
-  //   if (savedTheme) {
-  //     console.log('USE EFFECT', JSON.parse(savedTheme));
-  //     applyTheme(JSON.parse(savedTheme) as ThemeData);
-  //   } else {
-  //     const defaultTheme = localStorage.getItem('default') as ThemeOption | null;
-
-  //     if (!defaultTheme) {
-  //       document.documentElement.classList.remove('dark');
-  //       localStorage.setItem('default', 'default-light');
-  //       setActiveTheme('default-light');
-  //     } else {
-  //       if (defaultTheme.split('-')[1] === 'dark') {
-  //         document.documentElement.classList.add('dark');
-  //       } else {
-  //         document.documentElement.classList.remove('dark');
-  //       }
-  //       setActiveTheme(defaultTheme);
-  //     }
-  //   }
-  //   setTimeout(() => {
-  //     document.documentElement.style.transition = '';
-  //   }, 100);
-  // }, []);
-
   useEffect(() => {
     // 1. for default themes
     const defaultTheme = localStorage.getItem('default') as ThemeOption | null;
@@ -263,7 +151,7 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
       localStorage.setItem('default', 'default-light');
       setActiveTheme('default-light');
     }
-  });
+  }, []);
 
   return (
     <CurrentThemeContext.Provider
@@ -278,9 +166,6 @@ export const ThemeContextProvider = ({ children }: { children: React.ReactNode }
         removeTheme,
         revertToDefault,
         parseThemeOption,
-        // getThemeColors,
-        customThemes,
-        refreshCustomThemes,
       }}
     >
       {children}

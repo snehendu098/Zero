@@ -1,8 +1,8 @@
-import type { ApiThemeResponse, CustomTheme, ThemeColors, ThemeData } from '@/types';
+import type { ApiThemeResponse, ThemeColors, ClientThemeData } from '@/types';
 import type { Theme, ThemeColorSchema } from '@zero/server/schemas';
 
 // Light theme values
-const defaultLight = {
+const defaultThemeValues = {
   radius: '0.5rem',
   background: '0 0% 100%',
   foreground: '240 10% 3.9%',
@@ -32,39 +32,6 @@ const defaultLight = {
   'sidebar-border': '220 13% 91%',
   'sidebar-ring': '217.2 91.2% 59.8%',
   'icon-color': 'black',
-};
-
-// Dark theme values
-const defaultDark = {
-  radius: '0.5rem', // Same as light theme
-  background: '0, 0%, 10%', // Note: there's a comma instead of space in original
-  foreground: '0 0% 98%',
-  card: '240 5.9% 10%',
-  'card-foreground': '0 0% 98%',
-  popover: '240 3.4% 8%',
-  'popover-foreground': '0 0% 99%',
-  primary: '0 0% 98%',
-  'primary-foreground': '240 5.9% 10%',
-  secondary: '240 3.7% 15.9%',
-  'secondary-foreground': '0 0% 98%',
-  muted: '240 3.7% 15.9%',
-  'muted-foreground': '240 5% 64.9%',
-  accent: '240 3.7% 15.9%',
-  'accent-foreground': '0 0% 98%',
-  destructive: '0 62.8% 30.6%',
-  'destructive-foreground': '0 0% 98%',
-  border: '240 3.7% 20%',
-  input: '240 3.7% 15.9%',
-  ring: '240 4.9% 83.9%',
-  sidebar: '240 3.9% 7%',
-  'sidebar-foreground': '240 4.8% 96.9%',
-  'sidebar-primary': '224.3 76.3% 48%',
-  'sidebar-primary-foreground': '0 0% 100%',
-  'sidebar-accent': '240 3.7% 15.9%',
-  'sidebar-accent-foreground': '240 4.8% 95.9%',
-  'sidebar-border': '240 3.7% 15.9%',
-  'sidebar-ring': '217.2 91.2% 59.8%',
-  'icon-color': 'currentColor',
 };
 
 // Utility function to parse CSS variables and extract theme colors
@@ -128,8 +95,6 @@ export function extractThemeColors(themeCss: string): ThemeColors {
       const panelMatch = rootContent.match(/--panel:\s*([^;]+);/);
       if (panelMatch) {
         colors.background = hslToHex(panelMatch[1].trim());
-      } else {
-        colors.background = colors.background;
       }
     }
   } catch (error) {
@@ -299,8 +264,6 @@ export function extractDarkThemeColors(themeCss: string): ThemeColors {
       const panelMatch = darkContent.match(/--panel:\s*([^;]+);/);
       if (panelMatch) {
         colors.background = hslToHex(panelMatch[1].trim());
-      } else {
-        colors.background = colors.background;
       }
     }
   } catch (error) {
@@ -321,37 +284,37 @@ export function hasLightMode(themeCss: string): boolean {
 
 // Generate CSS from theme colors
 export function generateThemeCss(colors?: ThemeColorSchema): string {
-  const lightCss = colors
+  const themeCss = colors
     ? `
     :root {
       --radius: ${colors.radius || '0.5rem'};
-      --background: ${colors.background ? colors.background : defaultLight.background};
-      --foreground: ${colors.foreground ? colors.foreground : defaultLight.foreground};
-      --card: ${colors.card ? colors.card : defaultLight.card};
-      --card-foreground: ${colors['card-foreground'] ? colors['card-foreground'] : defaultLight['card-foreground']};
-      --popover: ${colors.background ? colors.background : defaultLight.popover};
-      --popover-foreground: ${colors.foreground ? colors.foreground : defaultLight['popover-foreground']};
-      --primary: ${colors.primary ? colors.primary : defaultLight.primary};
-      --primary-foreground: ${colors['primary-foreground'] ? colors['primary-foreground'] : defaultLight['primary-foreground']};
-      --secondary: ${colors.secondary ? colors.secondary : defaultLight.secondary};
-      --secondary-foreground: ${colors['secondary-foreground'] ? colors['secondary-foreground'] : defaultLight['secondary-foreground']};
-      --muted: ${colors.muted ? colors.muted : defaultLight.muted};
-      --muted-foreground: ${colors['muted-foreground'] ? colors['muted-foreground'] : defaultLight['muted-foreground']};
-      --accent: ${colors.accent ? colors.accent : defaultLight.accent};
-      --accent-foreground: ${colors['accent-foreground'] ? colors['accent-foreground'] : defaultLight['accent-foreground']};
+      --background: ${colors.background ? colors.background : defaultThemeValues.background};
+      --foreground: ${colors.foreground ? colors.foreground : defaultThemeValues.foreground};
+      --card: ${colors.card ? colors.card : defaultThemeValues.card};
+      --card-foreground: ${colors['card-foreground'] ? colors['card-foreground'] : defaultThemeValues['card-foreground']};
+      --popover: ${colors.background ? colors.background : defaultThemeValues.popover};
+      --popover-foreground: ${colors.foreground ? colors.foreground : defaultThemeValues['popover-foreground']};
+      --primary: ${colors.primary ? colors.primary : defaultThemeValues.primary};
+      --primary-foreground: ${colors['primary-foreground'] ? colors['primary-foreground'] : defaultThemeValues['primary-foreground']};
+      --secondary: ${colors.secondary ? colors.secondary : defaultThemeValues.secondary};
+      --secondary-foreground: ${colors['secondary-foreground'] ? colors['secondary-foreground'] : defaultThemeValues['secondary-foreground']};
+      --muted: ${colors.muted ? colors.muted : defaultThemeValues.muted};
+      --muted-foreground: ${colors['muted-foreground'] ? colors['muted-foreground'] : defaultThemeValues['muted-foreground']};
+      --accent: ${colors.accent ? colors.accent : defaultThemeValues.accent};
+      --accent-foreground: ${colors['accent-foreground'] ? colors['accent-foreground'] : defaultThemeValues['accent-foreground']};
       --destructive: ${colors.destructive ? colors.destructive : '0 84.2% 60.2%'};
       --destructive-foreground: ${colors['destructive-foreground'] ? colors['destructive-foreground'] : '0 0% 98%'};
-      --border: ${colors.border ? colors.border : defaultLight.border};
-      --input: ${colors.input ? colors.input : defaultLight.input};
-      --ring: ${colors.ring ? colors.ring : defaultLight.ring};
-      --sidebar: ${colors.sidebar ? colors.sidebar : defaultLight.sidebar};
-      --sidebar-foreground: ${colors['sidebar-foreground'] ? colors['sidebar-foreground'] : defaultLight['sidebar-foreground']};
-      --sidebar-primary: ${colors['sidebar-primary'] ? colors['sidebar-primary'] : defaultLight['sidebar-primary']};
-      --sidebar-primary-foreground: ${colors['primary-foreground'] ? colors['primary-foreground'] : defaultLight['sidebar-primary-foreground']};
-      --sidebar-accent: ${colors['sidebar-accent'] ? colors['sidebar-accent'] : defaultLight['sidebar-accent']};
-      --sidebar-accent-foreground: ${colors['sidebar-accent-foreground'] ? colors['sidebar-accent-foreground'] : defaultLight['sidebar-accent-foreground']};
-      --sidebar-border: ${colors['sidebar-border'] ? colors['sidebar-border'] : defaultLight['sidebar-border']};
-      --sidebar-ring: ${colors['sidebar-ring'] ? colors['sidebar-ring'] : defaultLight['sidebar-ring']};
+      --border: ${colors.border ? colors.border : defaultThemeValues.border};
+      --input: ${colors.input ? colors.input : defaultThemeValues.input};
+      --ring: ${colors.ring ? colors.ring : defaultThemeValues.ring};
+      --sidebar: ${colors.sidebar ? colors.sidebar : defaultThemeValues.sidebar};
+      --sidebar-foreground: ${colors['sidebar-foreground'] ? colors['sidebar-foreground'] : defaultThemeValues['sidebar-foreground']};
+      --sidebar-primary: ${colors['sidebar-primary'] ? colors['sidebar-primary'] : defaultThemeValues['sidebar-primary']};
+      --sidebar-primary-foreground: ${colors['primary-foreground'] ? colors['primary-foreground'] : defaultThemeValues['sidebar-primary-foreground']};
+      --sidebar-accent: ${colors['sidebar-accent'] ? colors['sidebar-accent'] : defaultThemeValues['sidebar-accent']};
+      --sidebar-accent-foreground: ${colors['sidebar-accent-foreground'] ? colors['sidebar-accent-foreground'] : defaultThemeValues['sidebar-accent-foreground']};
+      --sidebar-border: ${colors['sidebar-border'] ? colors['sidebar-border'] : defaultThemeValues['sidebar-border']};
+      --sidebar-ring: ${colors['sidebar-ring'] ? colors['sidebar-ring'] : defaultThemeValues['sidebar-ring']};
       --icon-color: ${colors['sidebar-foreground'] ? hslToHex(colors['sidebar-foreground']) : 'black'};
       
       --shadow-color: ${colors['shadow-color'] ? colors['shadow-color'] : 'hsl(0 0% 0% / 0.1)'};
@@ -367,36 +330,16 @@ export function generateThemeCss(colors?: ThemeColorSchema): string {
     `
     : '';
 
-  return lightCss;
-}
-
-// Helper to invert a color for contrast
-function invertColor(hex: string, opacity = 1): string {
-  // Remove the # if present
-  hex = hex.replace(/^#/, '');
-
-  // Parse the hex values
-  const r = Number.parseInt(hex.substring(0, 2), 16);
-  const g = Number.parseInt(hex.substring(2, 4), 16);
-  const b = Number.parseInt(hex.substring(4, 6), 16);
-
-  // Calculate perceived brightness
-  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-
-  // Return white or black based on brightness
-  if (brightness > 128) {
-    return opacity === 1 ? '#000000' : `rgba(0, 0, 0, ${opacity})`;
-  }
-  return opacity === 1 ? '#ffffff' : `rgba(255, 255, 255, ${opacity})`;
+  return themeCss;
 }
 
 // Generate theme data from API response format
-export function generateThemeData(apiThemes: ApiThemeResponse[]): ThemeData[] {
+export function generateThemeData(apiThemes: ApiThemeResponse[]): ClientThemeData[] {
   return apiThemes.flatMap((theme) => {
     const supportsLightMode = hasLightMode(theme.css);
     const supportsDarkMode = hasDarkMode(theme.css);
 
-    const themes: ThemeData[] = [];
+    const themes: ClientThemeData[] = [];
 
     if (supportsLightMode) {
       const lightColors = extractThemeColors(theme.css);
@@ -429,74 +372,7 @@ export function generateThemeData(apiThemes: ApiThemeResponse[]): ThemeData[] {
   });
 }
 
-// Generate theme data from custom themes
-export function generateCustomThemeData(customThemes: CustomTheme[]): ThemeData[] {
-  return customThemes.flatMap((theme) => {
-    const themes: ThemeData[] = [
-      {
-        id: `${theme.name.toLowerCase()}-light`,
-        name: theme.name.toLowerCase(),
-        variant: 'light',
-        description: theme.description,
-        colors: theme.colors.light,
-        css: generateThemeCss(theme.colors.light),
-        themeId: theme.id,
-        isCustom: true,
-      },
-    ];
-
-    // Only add dark variant if theme has dark mode
-    if (theme.hasDarkMode && theme.colors.dark) {
-      themes.push({
-        id: `${theme.name.toLowerCase()}-dark`,
-        name: theme.name.toLowerCase(),
-        variant: 'dark',
-        description: theme.description,
-        colors: theme.colors.dark,
-        css: generateThemeCss(theme.colors.dark),
-        themeId: theme.id,
-        isCustom: true,
-      });
-    }
-
-    return themes;
-  });
-}
-
-// Save custom theme to localStorage
-export function saveCustomTheme(theme: CustomTheme): void {
-  const existingThemes = getCustomThemes();
-
-  // Check if theme with same name exists
-  const existingIndex = existingThemes.findIndex(
-    (t) => t.name.toLowerCase() === theme.name.toLowerCase(),
-  );
-
-  if (existingIndex >= 0) {
-    // Update existing theme
-    existingThemes[existingIndex] = theme;
-  } else {
-    // Add new theme
-    existingThemes.push(theme);
-  }
-
-  localStorage.setItem('custom-themes', JSON.stringify(existingThemes));
-}
-
-// Get all custom themes from localStorage
-export function getCustomThemes(): CustomTheme[] {
-  const themes = localStorage.getItem('custom-themes');
-  return themes ? JSON.parse(themes) : [];
-}
-
-// Delete custom theme from localStorage
-export function deleteCustomTheme(themeId: string): void {
-  const existingThemes = getCustomThemes();
-  const updatedThemes = existingThemes.filter((theme) => theme.id !== themeId);
-  localStorage.setItem('custom-themes', JSON.stringify(updatedThemes));
-}
-
-export function parseTheme({ themes }: { themes: Theme[] }): ThemeData[] {
+export function parseTheme({ themes }: { themes: Theme[] }): ClientThemeData[] {
   const apiResponse: ApiThemeResponse[] = themes.map((item) => {
     return {
       id: item.id,

@@ -8,14 +8,15 @@ import {
 } from '@/components/ui/card';
 import { useCurrentTheme } from '@/components/context/theme-context';
 import type { ThemeColorSchema } from '@zero/server/schemas';
-import ThemeCreator, { hslToHex } from './theme-customizer';
 import { Check, Moon, Plus, Sun, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import { hslToHex } from '@/lib/themes/theme-utils';
 import { Button } from '@/components/ui/button';
 import { useThemes } from '@/hooks/use-themes';
+import ThemeCreator from './theme-customizer';
 import { defaultThemes } from '@/lib/themes';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
 
 const dialogVariants = {
   hidden: {
@@ -59,24 +60,12 @@ export default function ThemesPage() {
 
   const { data: userThemesData, isLoading, isError } = useUserThemes();
 
-  console.log(isLoading, userThemesData, isError);
-
   const handleThemeClick = (themeData: ThemeColorSchema, dark: boolean, id: string) => {
-    console.log(themeData);
-    console.log('✨ Applying new theme');
-
     applyTheme(themeData, dark, `${id}-${dark ? 'dark' : 'light'}`);
   };
 
   const handleDefaultThemeClick = (theme: (typeof defaultThemes)[0]) => {
     const [name, variant] = (theme.name as string).toLowerCase().split(' ');
-
-    console.log(
-      '🖱️ Default theme clicked:',
-      (theme.name as string).toLowerCase().split(' ').join('-'),
-      'Currently selected:',
-      selectedTheme,
-    );
 
     if (`${name}-${variant}` !== selectedTheme) {
       if (variant === 'dark') {
@@ -229,7 +218,7 @@ export default function ThemesPage() {
                   const { rootColors, darkColors } = item.themeData;
 
                   return (
-                    <>
+                    <React.Fragment key={item.id}>
                       {item.themeData['darkColors'] && (
                         <Card
                           onClick={() => darkColors && handleThemeClick(darkColors, true, item.id)}
@@ -355,7 +344,7 @@ export default function ThemesPage() {
                           </CardContent>
                         </Card>
                       )}
-                    </>
+                    </React.Fragment>
                   );
                 })}
               </div>

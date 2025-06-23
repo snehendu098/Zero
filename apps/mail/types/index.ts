@@ -164,10 +164,10 @@ export interface ApiThemeResponse {
   name: string;
   description: string | null;
   id: string;
-  css: string
+  css: string;
 }
 
-export interface ThemeData {
+export interface ClientThemeData {
   id: string;
   name: string;
   variant: ThemeVariant;
@@ -176,16 +176,4 @@ export interface ThemeData {
   css: string;
   themeId: string; // original theme ID from API
   isCustom?: boolean;
-}
-
-export interface CustomTheme {
-  name: string;
-  description: string;
-  colors: {
-    light: ThemeColors;
-    dark?: ThemeColors;
-  };
-  id: string;
-  createdAt?: string;
-  hasDarkMode: boolean;
 }

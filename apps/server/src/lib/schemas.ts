@@ -6,7 +6,7 @@ export type Theme = {
   connectionId: string | null;
   name: string;
   description: string | null;
-  themeData: ThemeData;
+  themeData: ThemePallette;
   isPublic: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -122,7 +122,7 @@ export const updateThemeSchema = createThemeSchema.partial().extend({
   id: z.string(),
 });
 
-export type ThemeData = z.infer<typeof themeDataSchema>;
+export type ThemePallette = z.infer<typeof themeDataSchema>;
 export type CreateTheme = z.infer<typeof createThemeSchema>;
 export type UpdateTheme = z.infer<typeof updateThemeSchema>;
 export type ThemeColorSchema = z.infer<typeof themeColorsSchema>;
