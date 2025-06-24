@@ -371,16 +371,3 @@ export function generateThemeData(apiThemes: ApiThemeResponse[]): ClientThemeDat
     return themes;
   });
 }
-
-export function parseTheme({ themes }: { themes: Theme[] }): ClientThemeData[] {
-  const apiResponse: ApiThemeResponse[] = themes.map((item) => {
-    return {
-      id: item.id,
-      name: item.name,
-      description: item.description,
-      css: generateThemeCss(item.themeData?.rootColors),
-    };
-  });
-
-  return generateThemeData(apiResponse);
-}
