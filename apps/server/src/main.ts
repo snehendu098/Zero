@@ -542,15 +542,15 @@ class ZeroDB extends DurableObject<Env> {
     return !!deleted;
   }
 
-  async findPublicThemes(limit: number, offset: number, searchQuery: string): Promise<(typeof theme.$inferSelect)[]> {
+ async findPublicThemes(limit: number, offset: number, searchQuery: string): Promise<(typeof theme.$inferSelect)[]> {
     if (searchQuery) {
+      // Escape SQL wildcard characters to prevent unintended pattern matches
+      const escapedQuery = searchQuery.replace(/[%_]/g, '\\$&');
       return await this.db.query.theme.findMany({
         where: and(
           or(
-            eq(theme.name, searchQuery),
-            eq(theme.description, searchQuery),
-            like(theme.name, `%${searchQuery}%`),
-            like(theme.description, `%${searchQuery}%`),
+            like(theme.name, `%${escapedQuery}%`),
+            like(theme.description, `%${escapedQuery}%`),
           ),
           eq(theme.isPublic, true),
         ),
