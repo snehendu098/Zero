@@ -135,9 +135,8 @@ export default function ThemesPage() {
 
                       {/* Theme Creator - ensure it takes full height and allows internal scrolling */}
                       <div className="flex-1 overflow-hidden">
-                        {' '}
                         {/* This div will contain ThemeCreator and manage its overflow */}
-                        <ThemeCreator />
+                        <ThemeCreator onSuccess={() => setOpen(false)} />
                       </div>
                     </motion.div>
                   </div>

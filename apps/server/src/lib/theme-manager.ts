@@ -1,22 +1,12 @@
 import type { CreateTheme, Theme, ThemePallette, UpdateTheme } from './schemas';
-import { and, desc, eq, like, or } from 'drizzle-orm';
-import { theme } from '../db/schema';
-import type { DB } from '../db';
+import { getZeroDB } from './server-utils';
 
 export class ThemeManager {
-  constructor(private db: DB) {}
+  constructor() {}
 
   async getUserThemes(userId: string, connectionId?: string): Promise<Theme[]> {
-    const whereCondition = connectionId
-      ? and(eq(theme.userId, userId), eq(theme.connectionId, connectionId))
-      : eq(theme.userId, userId);
-
-    const rows = await this.db
-      .select()
-      .from(theme)
-      .where(whereCondition)
-      .orderBy(desc(theme.createdAt));
-
+    const db = await getZeroDB(userId);
+    const rows: Theme[] = await db.findManyThemesByUserId(connectionId);
     return rows.map((row) => ({
       id: row.id,
       userId: row.userId,
@@ -30,35 +20,14 @@ export class ThemeManager {
     }));
   }
 
-  async getConnectionThemes(connectionId: string): Promise<Theme[]> {
-    const rows = await this.db
-      .select()
-      .from(theme)
-      .where(eq(theme.connectionId, connectionId))
-      .orderBy(desc(theme.createdAt));
-
-    return rows.map((row) => ({
-      id: row.id,
-      userId: row.userId,
-      connectionId: row.connectionId,
-      name: row.name,
-      description: row.description,
-      themeData: row.themeData as ThemePallette,
-      isPublic: row.isPublic ?? false,
-      createdAt: row.createdAt ?? new Date(),
-      updatedAt: row.updatedAt ?? new Date(),
-    }));
+  async getConnectionThemes(userId: string, connectionId: string): Promise<Theme[]> {
+    return this.getUserThemes(userId, connectionId);
   }
 
-  async getThemeById(themeId: string, userId?: string): Promise<Theme | null> {
-    const whereCondition = userId
-      ? and(eq(theme.id, themeId), eq(theme.userId, userId))
-      : eq(theme.id, themeId);
-
-    const [foundTheme] = await this.db.select().from(theme).where(whereCondition).limit(1);
-
+  async getThemeById(userId: string, themeId: string): Promise<Theme | null> {
+    const db = await getZeroDB(userId);
+    const foundTheme = (await db.findThemeById(themeId)) as Theme | undefined;
     if (!foundTheme) return null;
-
     return {
       id: foundTheme.id,
       userId: foundTheme.userId,
@@ -73,36 +42,8 @@ export class ThemeManager {
   }
 
   async getPublicThemes(limit = 50, offset = 0, searchQuery = ''): Promise<Theme[]> {
-    let rows;
-
-    if (searchQuery) {
-      rows = await this.db
-        .select()
-        .from(theme)
-        .where(
-          and(
-            or(
-              eq(theme.name, searchQuery),
-              eq(theme.description, searchQuery),
-              like(theme.name, `%${searchQuery}%`),
-              like(theme.description, `%${searchQuery}%`),
-            ),
-            eq(theme.isPublic, true),
-          ),
-        )
-        .orderBy(desc(theme.createdAt))
-        .limit(limit)
-        .offset(offset);
-    } else {
-      rows = await this.db
-        .select()
-        .from(theme)
-        .where(eq(theme.isPublic, true))
-        .orderBy(desc(theme.createdAt))
-        .limit(limit)
-        .offset(offset);
-    }
-
+    const db = await getZeroDB('public');
+    const rows: Theme[] = await db.findPublicThemes(limit, offset, searchQuery);
     return rows.map((row) => ({
       id: row.id,
       userId: row.userId,
@@ -121,22 +62,17 @@ export class ThemeManager {
     connectionId: string | null,
     data: CreateTheme,
   ): Promise<Theme> {
-    const [newTheme] = await this.db
-      .insert(theme)
-      .values({
-        userId,
-        connectionId,
-        name: data.name,
-        description: data.description,
-        themeData: data.themeData,
-        isPublic: data.isPublic,
-      })
-      .returning();
-
+    const db = await getZeroDB(userId);
+    const [newTheme] = (await db.createTheme({
+      connectionId,
+      name: data.name,
+      description: data.description,
+      themeData: data.themeData,
+      isPublic: data.isPublic,
+    })) as Theme[];
     if (!newTheme) {
       throw new Error('Failed to create theme');
     }
-
     return {
       id: newTheme.id,
       userId: newTheme.userId,
@@ -151,21 +87,12 @@ export class ThemeManager {
   }
 
   async updateTheme(userId: string, themeId: string, data: Partial<UpdateTheme>): Promise<Theme> {
+    const db = await getZeroDB(userId);
     const { id, ...updateData } = data;
-
-    const [updatedTheme] = await this.db
-      .update(theme)
-      .set({
-        ...updateData,
-        updatedAt: new Date(),
-      })
-      .where(and(eq(theme.id, themeId), eq(theme.userId, userId)))
-      .returning();
-
+    const updatedTheme = (await db.updateTheme(themeId, updateData)) as Theme | undefined;
     if (!updatedTheme) {
       throw new Error('Theme not found or unauthorized');
     }
-
     return {
       id: updatedTheme.id,
       userId: updatedTheme.userId,
@@ -180,12 +107,8 @@ export class ThemeManager {
   }
 
   async deleteTheme(userId: string, themeId: string): Promise<boolean> {
-    const [deletedTheme] = await this.db
-      .delete(theme)
-      .where(and(eq(theme.id, themeId), eq(theme.userId, userId)))
-      .returning();
-
-    return !!deletedTheme;
+    const db = await getZeroDB(userId);
+    return (await db.deleteTheme(themeId)) as boolean;
   }
 
   async copyPublicTheme(
@@ -193,16 +116,11 @@ export class ThemeManager {
     connectionId: string,
     publicThemeId: string,
   ): Promise<Theme> {
-    const [publicTheme] = await this.db
-      .select()
-      .from(theme)
-      .where(and(eq(theme.id, publicThemeId), eq(theme.isPublic, true)))
-      .limit(1);
-
-    if (!publicTheme) {
+    const db = await getZeroDB(userId);
+    const publicTheme = (await db.findThemeById(publicThemeId)) as Theme | undefined;
+    if (!publicTheme || !publicTheme.isPublic) {
       throw new Error('Public theme not found');
     }
-
     return this.createTheme(userId, connectionId, {
       name: `${publicTheme.name} (Copy)`,
       description: publicTheme.description || undefined,
@@ -212,11 +130,11 @@ export class ThemeManager {
   }
 
   async togglePublicStatus(userId: string, themeId: string): Promise<Theme> {
-    const existingTheme = await this.getThemeById(themeId, userId);
+    const db = await getZeroDB(userId);
+    const existingTheme = (await db.findThemeById(themeId)) as Theme | undefined;
     if (!existingTheme) {
       throw new Error('Theme not found or unauthorized');
     }
-
     return this.updateTheme(userId, themeId, {
       isPublic: !existingTheme.isPublic,
     });

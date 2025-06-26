@@ -189,7 +189,7 @@ export function NavMain({ items }: NavMainProps) {
             <SidebarMenuButton
               onClick={() => show()}
               tooltip={state === 'collapsed' ? t('help' as MessageKey) : undefined}
-              className="hover:bg-subtleWhite flex cursor-pointer items-center dark:hover:bg-[#202020]"
+              className="flex cursor-pointer items-center hover:bg-sidebar-accent/50"
             >
               <OldPhone className="relative mr-2.5 h-2 w-2 fill-[#8F8F8F]" />
               <p className="relative bottom-0.5 mt-0.5 truncate text-[13px]">Live Support</p>
@@ -305,8 +305,8 @@ function NavItem(item: NavItemProps & { href: string }) {
           asChild
           tooltip={state === 'collapsed' ? t(item.title as MessageKey) : undefined}
           className={cn(
-            'hover:bg-subtleWhite flex items-center dark:hover:bg-[#202020]',
-            item.isActive && 'bg-subtleWhite text-accent-foreground dark:bg-[#202020]',
+            'flex items-center hover:bg-sidebar-accent/50',
+            item.isActive && 'bg-sidebar-accent text-accent-foreground',
           )}
           onClick={handleClick}
         >

@@ -11,7 +11,7 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { z } from 'zod';
 
 const themeProcedure = privateProcedure.use(async ({ ctx, next }) => {
-  const themeManager = new ThemeManager(ctx.db);
+  const themeManager = new ThemeManager();
   return next({ ctx: { ...ctx, themeManager } });
 });
 
@@ -33,17 +33,17 @@ export const themesRouter = router({
   // Get themes for current connection
   getConnectionThemes: activeConnectionProcedure
     .use(async ({ ctx, next }) => {
-      const themeManager = new ThemeManager(ctx.db);
+      const themeManager = new ThemeManager();
       return next({ ctx: { ...ctx, themeManager } });
     })
     .query(async ({ ctx }) => {
-      const themes = await ctx.themeManager.getConnectionThemes(ctx.activeConnection.id);
+      const themes = await ctx.themeManager.getConnectionThemes(ctx.sessionUser.id, ctx.activeConnection.id);
       return { themes };
     }),
 
   // Get single theme by ID
   get: themeProcedure.input(z.object({ themeId: z.string() })).query(async ({ ctx, input }) => {
-    const theme = await ctx.themeManager.getThemeById(input.themeId, ctx.sessionUser.id);
+    const theme = await ctx.themeManager.getThemeById(ctx.sessionUser.id, input.themeId);
     if (!theme) {
       throw new Error('Theme not found');
     }
@@ -53,7 +53,7 @@ export const themesRouter = router({
   // Create new theme
   create: activeConnectionProcedure
     .use(async ({ ctx, next }) => {
-      const themeManager = new ThemeManager(ctx.db);
+      const themeManager = new ThemeManager();
       return next({ ctx: { ...ctx, themeManager } });
     })
     .use(
@@ -125,7 +125,7 @@ export const themesRouter = router({
       }),
     )
     .use(async ({ ctx, next }) => {
-      const themeManager = new ThemeManager(ctx.db);
+      const themeManager = new ThemeManager();
       return next({ ctx: { ...ctx, themeManager } });
     })
     .query(async ({ ctx, input }) => {
@@ -146,11 +146,12 @@ export const themesRouter = router({
   getPublic: publicProcedure
     .input(z.object({ themeId: z.string() }))
     .use(async ({ ctx, next }) => {
-      const themeManager = new ThemeManager(ctx.db);
+      const themeManager = new ThemeManager();
       return next({ ctx: { ...ctx, themeManager } });
     })
     .query(async ({ ctx, input }) => {
-      const theme = await ctx.themeManager.getThemeById(input.themeId);
+      // For public themes, we don't have a userId, so pass 'public' as userId
+      const theme = await ctx.themeManager.getThemeById('public', input.themeId);
       if (!theme || !theme.isPublic) {
         throw new Error('Public theme not found');
       }
@@ -160,7 +161,7 @@ export const themesRouter = router({
   // Copy public theme
   copyPublic: activeConnectionProcedure
     .use(async ({ ctx, next }) => {
-      const themeManager = new ThemeManager(ctx.db);
+      const themeManager = new ThemeManager();
       return next({ ctx: { ...ctx, themeManager } });
     })
     .use(

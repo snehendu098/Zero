@@ -139,7 +139,7 @@ function formatRemValue(value: number): string {
   return `${value}rem`;
 }
 
-export default function ThemeCreator() {
+export default function ThemeCreator({ onSuccess }: { onSuccess?: () => void }) {
   // Theme settings state
   const [themeName, setThemeName] = useState('My Custom Theme');
   const [themeDescription, setThemeDescription] = useState('');
@@ -343,6 +343,7 @@ export default function ThemeCreator() {
     try {
       await createTheme.mutateAsync(themePayload);
       toast.success('Theme created successfully');
+      if (onSuccess) onSuccess();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to create theme. Please try again.');
     }

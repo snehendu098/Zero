@@ -13,13 +13,14 @@ import {
   userHotkeys,
   userSettings,
   writingStyleMatrix,
+  theme,
 } from './db/schema';
 import { env, WorkerEntrypoint, DurableObject, RpcTarget } from 'cloudflare:workers';
 import { getZeroAgent, getZeroDB, verifyToken } from './lib/server-utils';
 import { MainWorkflow, ThreadWorkflow, ZeroWorkflow } from './pipelines';
 import { oAuthDiscoveryMetadata } from 'better-auth/plugins';
 import { EProviders, type ISubscribeBatch } from './types';
-import { eq, and, desc, asc, inArray } from 'drizzle-orm';
+import { eq, and, desc, asc, inArray, or, like } from 'drizzle-orm';
 import { contextStorage } from 'hono/context-storage';
 import { defaultUserSettings } from './lib/schemas';
 import { createLocalJWKSet, jwtVerify } from 'jose';
@@ -170,6 +171,30 @@ export class DbRpcDO extends RpcTarget {
     updatingInfo: Partial<typeof connection.$inferInsert>,
   ) {
     return await this.mainDo.updateConnection(connectionId, updatingInfo);
+  }
+
+  async findThemeById(themeId: string): Promise<typeof theme.$inferSelect | undefined> {
+    return await this.mainDo.findThemeById(this.userId, themeId);
+  }
+
+  async findManyThemesByUserId(connectionId?: string): Promise<(typeof theme.$inferSelect)[]> {
+    return await this.mainDo.findManyThemesByUserId(this.userId, connectionId);
+  }
+
+  async createTheme(payload: Omit<typeof theme.$inferInsert, 'userId'> & { connectionId: string | null }): Promise<typeof theme.$inferSelect[]> {
+    return await this.mainDo.createTheme(this.userId, payload as typeof theme.$inferInsert);
+  }
+
+  async updateTheme(themeId: string, payload: Partial<typeof theme.$inferInsert>): Promise<typeof theme.$inferSelect | undefined> {
+    return await this.mainDo.updateTheme(this.userId, themeId, payload);
+  }
+
+  async deleteTheme(themeId: string): Promise<boolean> {
+    return await this.mainDo.deleteTheme(this.userId, themeId);
+  }
+
+  async findPublicThemes(limit: number, offset: number, searchQuery: string): Promise<(typeof theme.$inferSelect)[]> {
+    return await this.mainDo.findPublicThemes(limit, offset, searchQuery);
   }
 }
 
@@ -479,6 +504,68 @@ class ZeroDB extends DurableObject<Env> {
       .update(connection)
       .set(updatingInfo)
       .where(eq(connection.id, connectionId));
+  }
+
+  async findThemeById(userId: string, themeId: string): Promise<typeof theme.$inferSelect | undefined> {
+    return await this.db.query.theme.findFirst({
+      where: and(eq(theme.id, themeId), eq(theme.userId, userId)),
+    });
+  }
+
+  async findManyThemesByUserId(userId: string, connectionId?: string): Promise<(typeof theme.$inferSelect)[]> {
+    return await this.db.query.theme.findMany({
+      where: connectionId
+        ? and(eq(theme.userId, userId), eq(theme.connectionId, connectionId))
+        : eq(theme.userId, userId),
+      orderBy: [desc(theme.createdAt)],
+    });
+  }
+
+  async createTheme(userId: string, payload: typeof theme.$inferInsert): Promise<typeof theme.$inferSelect[]> {
+    return await this.db.insert(theme).values({ ...payload, userId }).returning();
+  }
+
+  async updateTheme(userId: string, themeId: string, payload: Partial<typeof theme.$inferInsert>): Promise<typeof theme.$inferSelect | undefined> {
+    const [updated] = await this.db
+      .update(theme)
+      .set({ ...payload, updatedAt: new Date() })
+      .where(and(eq(theme.id, themeId), eq(theme.userId, userId)))
+      .returning();
+    return updated;
+  }
+
+  async deleteTheme(userId: string, themeId: string): Promise<boolean> {
+    const [deleted] = await this.db
+      .delete(theme)
+      .where(and(eq(theme.id, themeId), eq(theme.userId, userId)))
+      .returning();
+    return !!deleted;
+  }
+
+  async findPublicThemes(limit: number, offset: number, searchQuery: string): Promise<(typeof theme.$inferSelect)[]> {
+    if (searchQuery) {
+      return await this.db.query.theme.findMany({
+        where: and(
+          or(
+            eq(theme.name, searchQuery),
+            eq(theme.description, searchQuery),
+            like(theme.name, `%${searchQuery}%`),
+            like(theme.description, `%${searchQuery}%`),
+          ),
+          eq(theme.isPublic, true),
+        ),
+        orderBy: [desc(theme.createdAt)],
+        limit,
+        offset,
+      });
+    } else {
+      return await this.db.query.theme.findMany({
+        where: eq(theme.isPublic, true),
+        orderBy: [desc(theme.createdAt)],
+        limit,
+        offset,
+      });
+    }
   }
 }
 

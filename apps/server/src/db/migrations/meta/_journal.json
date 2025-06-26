@@ -211,6 +211,20 @@
       "when": 1748593231544,
       "tag": "0028_soft_blazing_skull",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1750942231988,
+      "tag": "0029_loose_lizard",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1750942558918,
+      "tag": "0030_fresh_ogun",
+      "breakpoints": true
     }
   ]
 }
