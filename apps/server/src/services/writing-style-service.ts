@@ -1,11 +1,14 @@
 import { mapToObj, pipe, entries, sortBy, take, fromEntries } from 'remeda';
 import { getContext } from 'hono/context-storage';
 import { writingStyleMatrix } from '../db/schema';
+import { getZeroDB } from '../lib/server-utils';
 import type { HonoContext } from '../ctx';
+import { env } from 'cloudflare:workers';
 import { google } from '@ai-sdk/google';
 import { jsonrepair } from 'jsonrepair';
 import { generateObject } from 'ai';
 import { eq } from 'drizzle-orm';
+import { createDb } from '../db';
 import pRetry from 'p-retry';
 import { z } from 'zod';
 
@@ -162,17 +165,13 @@ export const getWritingStyleMatrixForConnectionId = async ({
   connectionId: string;
   backupContent?: string;
 }) => {
-  const c = getContext<HonoContext>();
+  const { db, conn } = createDb(env.HYPERDRIVE.connectionString);
 
-  const matrix = await c.var.db.query.writingStyleMatrix.findFirst({
-    where: (table, ops) => {
-      return ops.eq(table.connectionId, connectionId);
-    },
-    columns: {
-      numMessages: true,
-      style: true,
-    },
+  const matrix = await db.query.writingStyleMatrix.findFirst({
+    where: eq(writingStyleMatrix.connectionId, connectionId),
   });
+
+  await conn.end();
 
   if (!matrix && backupContent) {
     if (!backupContent.trim()) {
@@ -192,31 +191,21 @@ export const getWritingStyleMatrixForConnectionId = async ({
 };
 
 export const updateWritingStyleMatrix = async (connectionId: string, emailBody: string) => {
-  const c = getContext<HonoContext>();
-
   const emailStyleMatrix = await extractStyleMatrix(emailBody);
 
   await pRetry(
     async () => {
-      await c.var.db.transaction(async (tx) => {
+      const { db, conn } = createDb(env.HYPERDRIVE.connectionString);
+      await db.transaction(async (tx) => {
         const [existingMatrix] = await tx
           .select({
             numMessages: writingStyleMatrix.numMessages,
             style: writingStyleMatrix.style,
           })
           .from(writingStyleMatrix)
-          .where(eq(writingStyleMatrix.connectionId, connectionId))
-          .for('update');
+          .where(eq(writingStyleMatrix.connectionId, connectionId));
 
-        if (!existingMatrix) {
-          const newStyle = initializeStyleMatrixFromEmail(emailStyleMatrix);
-
-          await tx.insert(writingStyleMatrix).values({
-            connectionId,
-            numMessages: 1,
-            style: newStyle,
-          });
-        } else {
+        if (existingMatrix) {
           const newStyle = createUpdatedMatrixFromNewEmail(
             existingMatrix.numMessages,
             existingMatrix.style as WritingStyleMatrix,
@@ -230,8 +219,20 @@ export const updateWritingStyleMatrix = async (connectionId: string, emailBody: 
               style: newStyle,
             })
             .where(eq(writingStyleMatrix.connectionId, connectionId));
+        } else {
+          const newStyle = initializeStyleMatrixFromEmail(emailStyleMatrix);
+
+          await tx
+            .insert(writingStyleMatrix)
+            .values({
+              connectionId,
+              numMessages: 1,
+              style: newStyle,
+            })
+            .onConflictDoNothing();
         }
       });
+      await conn.end();
     },
     {
       retries: 1,
@@ -239,7 +240,7 @@ export const updateWritingStyleMatrix = async (connectionId: string, emailBody: 
   );
 };
 
-const createUpdatedMatrixFromNewEmail = (
+export const createUpdatedMatrixFromNewEmail = (
   numMessages: number,
   currentStyleMatrix: WritingStyleMatrix,
   emailStyleMatrix: EmailMatrix,
@@ -277,7 +278,7 @@ const takeTopK = (data: Record<string, number>, k = TAKE_TOP_K) => {
   );
 };
 
-const initializeStyleMatrixFromEmail = (matrix: EmailMatrix) => {
+export const initializeStyleMatrixFromEmail = (matrix: EmailMatrix) => {
   const initializedWelfordMetrics = mapToObj(MEAN_METRIC_KEYS, (key) => {
     return [key, initializeWelfordMetric(matrix[key])];
   });

@@ -1,5 +1,5 @@
 import { disableBrainFunction, getPrompts } from '../../lib/brain';
-import { EProviders, type ISubscribeBatch } from '../../types';
+import { EProviders, EPrompts, type ISubscribeBatch } from '../../types';
 import { activeConnectionProcedure, router } from '../trpc';
 import { setSubscribedState } from '../../lib/utils';
 import { env } from 'cloudflare:workers';
@@ -37,11 +37,11 @@ export const brainRouter = router({
     .query(async ({ input, ctx }) => {
       const { threadId } = input;
       const response = await env.VECTORIZE.getByIds([threadId]);
-      if (response.length && response?.[0]?.metadata?.['content']) {
-        const result = response[0].metadata as { content: string; connection: string };
+      if (response.length && response?.[0]?.metadata?.['summary']) {
+        const result = response[0].metadata as { summary: string; connection: string };
         if (result.connection !== ctx.activeConnection.id) return null;
         const shortResponse = await env.AI.run('@cf/facebook/bart-large-cnn', {
-          input_text: result.content,
+          input_text: result.summary,
         });
         return {
           data: {
@@ -80,6 +80,22 @@ export const brainRouter = router({
     const connection = ctx.activeConnection;
     return await getPrompts({ connectionId: connection.id });
   }),
+  updatePrompt: activeConnectionProcedure
+    .input(
+      z.object({
+        promptType: z.nativeEnum(EPrompts),
+        content: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const connection = ctx.activeConnection;
+
+      const promptName = `${connection.id}-${input.promptType}`;
+
+      await env.prompts_storage.put(promptName, input.content);
+
+      return { success: true };
+    }),
   updateLabels: activeConnectionProcedure
     .input(
       z.object({

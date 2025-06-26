@@ -30,6 +30,10 @@
             "class_name": "ZeroMCP",
           },
           {
+            "name": "ZERO_DB",
+            "class_name": "ZeroDB",
+          },
+          {
             "class_name": "DurableMailbox",
             "name": "DURABLE_MAILBOX",
           },
@@ -63,6 +67,10 @@
         {
           "tag": "v2",
           "new_sqlite_classes": ["ZeroAgent", "ZeroMCP"],
+        },
+        {
+          "tag": "v3",
+          "new_classes": ["ZeroDB"],
         },
       ],
       "workflows": [
@@ -131,6 +139,9 @@
       ],
     },
     "staging": {
+      "triggers": {
+        "crons": ["0 0 * * *"],
+      },
       "ai": {
         "binding": "AI",
       },
@@ -158,6 +169,10 @@
             "class_name": "ZeroMCP",
           },
           {
+            "name": "ZERO_DB",
+            "class_name": "ZeroDB",
+          },
+          {
             "class_name": "DurableMailbox",
             "name": "DURABLE_MAILBOX",
           },
@@ -166,20 +181,20 @@
       "queues": {
         "producers": [
           {
-            "queue": "thread-queue",
+            "queue": "thread-queue-staging",
             "binding": "thread_queue",
           },
           {
-            "queue": "subscribe-queue",
+            "queue": "subscribe-queue-staging",
             "binding": "subscribe_queue",
           },
         ],
         "consumers": [
           {
-            "queue": "subscribe-queue",
+            "queue": "subscribe-queue-staging",
           },
           {
-            "queue": "thread-queue",
+            "queue": "thread-queue-staging",
           },
         ],
       },
@@ -191,6 +206,10 @@
         {
           "tag": "v2",
           "new_sqlite_classes": ["ZeroAgent", "ZeroMCP"],
+        },
+        {
+          "tag": "v3",
+          "new_classes": ["ZeroDB"],
         },
       ],
       "workflows": [
@@ -226,7 +245,6 @@
         "VITE_PUBLIC_BACKEND_URL": "https://sapi.0.email",
         "VITE_PUBLIC_APP_URL": "https://staging.0.email",
         "DISABLE_CALLS": "",
-        "GOOGLE_S_ACCOUNT": "{}",
       },
       "kv_namespaces": [
         {
@@ -256,6 +274,9 @@
       ],
     },
     "production": {
+      "triggers": {
+        "crons": ["0 0 * * *"],
+      },
       "ai": {
         "binding": "AI",
       },
@@ -307,6 +328,10 @@
             "class_name": "ZeroMCP",
           },
           {
+            "name": "ZERO_DB",
+            "class_name": "ZeroDB",
+          },
+          {
             "class_name": "DurableMailbox",
             "name": "DURABLE_MAILBOX",
           },
@@ -315,20 +340,20 @@
       "queues": {
         "producers": [
           {
-            "queue": "thread-queue",
+            "queue": "thread-queue-prod",
             "binding": "thread_queue",
           },
           {
-            "queue": "subscribe-queue",
+            "queue": "subscribe-queue-prod",
             "binding": "subscribe_queue",
           },
         ],
         "consumers": [
           {
-            "queue": "subscribe-queue",
+            "queue": "subscribe-queue-prod",
           },
           {
-            "queue": "thread-queue",
+            "queue": "thread-queue-prod",
           },
         ],
       },
@@ -341,6 +366,10 @@
           "tag": "v2",
           "new_sqlite_classes": ["ZeroAgent", "ZeroMCP"],
         },
+        {
+          "tag": "v3",
+          "new_classes": ["ZeroDB"],
+        },
       ],
       "vars": {
         "NODE_ENV": "production",
@@ -348,7 +377,6 @@
         "VITE_PUBLIC_BACKEND_URL": "https://api.0.email",
         "VITE_PUBLIC_APP_URL": "https://0.email",
         "DISABLE_CALLS": "true",
-        "GOOGLE_S_ACCOUNT": "{}",
       },
       "kv_namespaces": [
         {

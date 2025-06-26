@@ -15,10 +15,12 @@ import { mailRouter } from './routes/mail';
 import type { HonoContext } from '../ctx';
 import { aiRouter } from './routes/ai';
 import { router } from './trpc';
+import { categoriesRouter } from './routes/categories';
 
 export const appRouter = router({
   ai: aiRouter,
   brain: brainRouter,
+  categories: categoriesRouter,
   connections: connectionsRouter,
   cookiePreferences: cookiePreferencesRouter,
   drafts: draftsRouter,
@@ -42,7 +44,6 @@ export const serverTrpc = () => {
   return appRouter.createCaller({
     c,
     sessionUser: c.var.sessionUser,
-    db: c.var.db,
     auth: c.var.auth,
     autumn: c.var.autumn,
   });

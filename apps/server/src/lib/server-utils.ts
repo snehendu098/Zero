@@ -1,32 +1,37 @@
 import { getContext } from 'hono/context-storage';
-import { connection, user } from '../db/schema';
+import { connection } from '../db/schema';
 import type { HonoContext } from '../ctx';
 import { env } from 'cloudflare:workers';
 import { createDriver } from './driver';
-import { and, eq } from 'drizzle-orm';
+
+export const getZeroDB = (userId: string) => {
+  const stub = env.ZERO_DB.get(env.ZERO_DB.idFromName(userId));
+  const rpcTarget = stub.setMetaData(userId);
+  return rpcTarget;
+};
+
+export const getZeroAgent = async (connectionId: string) => {
+  const stub = env.ZERO_AGENT.get(env.ZERO_AGENT.idFromName(connectionId));
+  const rpcTarget = await stub.setMetaData(connectionId);
+  await rpcTarget.setupAuth(connectionId);
+  return rpcTarget;
+};
 
 export const getActiveConnection = async () => {
   const c = getContext<HonoContext>();
-  const { sessionUser, db } = c.var;
+  const { sessionUser } = c.var;
   if (!sessionUser) throw new Error('Session Not Found');
 
-  const userData = await db.query.user.findFirst({
-    where: eq(user.id, sessionUser.id),
-  });
+  const db = getZeroDB(sessionUser.id);
+
+  const userData = await db.findUser();
 
   if (userData?.defaultConnectionId) {
-    const activeConnection = await db.query.connection.findFirst({
-      where: and(
-        eq(connection.userId, sessionUser.id),
-        eq(connection.id, userData.defaultConnectionId),
-      ),
-    });
+    const activeConnection = await db.findUserConnection(userData.defaultConnectionId);
     if (activeConnection) return activeConnection;
   }
 
-  const firstConnection = await db.query.connection.findFirst({
-    where: and(eq(connection.userId, sessionUser.id)),
-  });
+  const firstConnection = await db.findFirstConnection();
   if (!firstConnection) {
     console.error(`No connections found for user ${sessionUser.id}`);
     throw new Error('No connections found for user');
@@ -88,8 +93,7 @@ export const notifyUser = async ({
     payload,
   });
 
-  const durableObject = env.ZERO_AGENT.idFromName(connectionId);
-  const mailbox = env.ZERO_AGENT.get(durableObject);
+  const mailbox = await getZeroAgent(connectionId);
 
   try {
     console.log(`[notifyUser] Broadcasting message`, {
